@@ -10,10 +10,19 @@ namespace AppBookify.Services
     {
         private IDatabase database;
         private IHttpContextAccessor httpContextAccessor;
-        public ServiceCacheRedis(IHttpContextAccessor httpContextAccessor)
+        public ServiceCacheRedis(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
-            this.database =
-                HelperCacheMultiplexer.Connection.GetDatabase();
+            //this.database =
+            //    HelperCacheMultiplexer.Connection.GetDatabase();
+
+            ////SEGUNDO
+            //var cacheConnectionString = configuration["CacheRedis:Cache"];
+            //var connectionMultiplexer = ConnectionMultiplexer.Connect(cacheConnectionString);
+            //this.database = connectionMultiplexer.GetDatabase();
+
+            var connectionMultiplexer = HelperCacheMultiplexer.GetConnection(configuration);
+            this.database = connectionMultiplexer.GetDatabase();
+
             this.httpContextAccessor = httpContextAccessor;
         }
 
