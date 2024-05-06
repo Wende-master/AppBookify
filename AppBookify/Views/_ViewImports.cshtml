@@ -1,0 +1,10 @@
+﻿@using AppBookify
+@using AppBookify.Services
+@using Microsoft.Extensions.Caching.Memory
+@using AppBookify.Models
+@using AppBookify.Extensions;
+@inject IMemoryCache memoryCache
+@using System.Security.Claims
+@inject ServiceCacheRedis serviceCache
+@inject IConfiguration configuration
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

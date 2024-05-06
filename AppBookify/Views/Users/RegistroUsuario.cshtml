@@ -1,0 +1,121 @@
+﻿
+
+<section class="h-100 mb-9 pb-3">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-xl-10">
+                <div class="card rounded-3 text-black" style="background-color: #d8d8d8;">
+                    <div class="row g-0" style="border-radius: .3rem">
+                        <div class="col-lg-6">
+                            <div class="card-body mx-md-4">
+
+                                <form asp-action="RegistroUsuario" method="post" enctype="multipart/form-data">
+                                    <div class="d-flex justify-content-center mb-4">
+                                        <img class="rounded-pill" width="75" height="75"
+                                             src="~/images/logo.png">
+                                    </div>
+                                    <div class="d-flex justify-content-center mb-4">
+                                        <strong>Regístrate</strong>
+                                    </div>
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                                    <div class="form-outline mb-4">
+                                        <input type="text" id="nombre"
+                                               style="background-color: #0d6efd40;" placeholder="Nombre"
+                                               class="form-control" name="nombre" required />
+                                    </div>
+
+                                    <div class="form-outline mb-4">
+                                        <input type="text" id="apellido"
+                                               style="background-color: #0d6efd40;" placeholder="Apellido"
+                                               class="form-control" name="apellido" required />
+                                    </div>
+
+                                    <div class="form-outline mb-4">
+                                        <input type="email" id="email"
+                                               style="background-color: #0d6efd40;" placeholder="Correo electrónico"
+                                               class="form-control" name="email" required />
+                                    </div>
+
+                                    <div class="form-outline mb-4">
+                                        <input type="password" id="password"
+                                               style="background-color: #0d6efd40;" placeholder="Contraseña"
+                                               class="form-control" name="password" required />
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility()">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="form-outline mb-5 position-relative">
+                                        <label class="form-label" for="imagen"></label>
+                                        <img src="~/perfiles/default.png" alt="Default" data-bs-toggle="popover" title="Foto Perfil"
+                                             onmouseenter="mostrarPopover(this)"
+                                             class="default-icon position-absolute top-50 start-50 translate-middle">
+                                        <input type="file" id="imagenPerfil" class="form-control d-none" name="imagen" required />
+                                    </div>
+
+                                    <div class="text-center">
+                                        <button type="submit" class="btn botones btn-secondary rounded-pill btn-block">Registrar</button>
+                                        <br />
+                                        <p>
+                                            <span style="color: #f3b201">
+                                                @ViewData["ERROR_MESSAGE"]
+                                            </span>
+                                        </p>
+                                        <a asp-controller="Managed" asp-action="Login" class="btn botones rounded-pill btn-secondary">
+                                            ¿Ya tienes cuenta?
+                                        </a>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-flex align-items-center imagenForm">
+                            <div class="text-black px-3 py-4 p-md-5 mx-md-4">
+                                <h4 class="mb-4">Descubre el mundo de los libros con Bookify</h4>
+                                <p class="small mb-0">Explora una amplia variedad de libros de todos los géneros. Regístrate ahora y empieza a disfrutar de la lectura.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        function togglePasswordVisibility() {
+            var passwordField = document.getElementById("password");
+            var showPasswordBtn = document.querySelector(".btn-outline-secondary");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                showPasswordBtn.innerHTML = `
+                                                <i class="fas fa-eye-slash"></i>
+                                                `;
+            } else {
+                passwordField.type = "password";
+                showPasswordBtn.innerHTML = `
+                                                            <i class="fas fa-eye"></i>
+                                                `;
+            }
+        }
+
+        $(".default-icon").click(function () {
+            $("#imagenPerfil").click();
+        });
+        function mostrarPopover(elemento) {
+            var popover = new bootstrap.Popover(elemento);
+            popover.show();
+            setTimeout(function () {
+                popover.dispose();
+            }, 1100);
+        }
+    </script>
+}

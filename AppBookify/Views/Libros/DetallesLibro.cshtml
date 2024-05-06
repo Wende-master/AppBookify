@@ -1,0 +1,91 @@
+﻿@model LibrosViewModel
+
+@if (Model != null)
+{
+
+    <div class="container my-5 fadein-libros-first">
+        <div class="row">
+            <div class="col-md-6">
+                <img class="img-fluid" src="@Model.Imagen" alt="">
+            </div>
+
+            @if (Context.User.Identity.IsAuthenticated)
+            {
+
+                <div class="entry-header mb-3 p-3">
+                    <a class="btn btn-outline-primary" asp-controller="Libros" asp-action="AñadirFavorito"
+                       asp-route-idlibro="@Model.LibroId">
+                        Añadir a carrito
+                    </a>
+
+                    @if (int.Parse(Context.User.FindFirst(ClaimTypes.Role).Value) == 1)
+                    {
+                        <a class="btn btn-danger" asp-controller="Libros" asp-action="EliminarLibro"
+                           asp-route-idlibro="@Model.LibroId">
+                            Eliminar
+                        </a>
+                    }
+
+                </div>
+
+                @if (Model.ValoracionPromedio != null)
+                {
+                    <div class="p-3">
+                        <a class="text-danger text-decoration-none" asp-controller="Valoraciones" asp-action="RegistrarValoracion"
+                           asp-route-idlibro="@Model.LibroId">
+                            <input class="rating" max="5" step="0.5"
+                                   style="--value: @Model.ValoracionPromedio?.ToString().Replace(',', '.'); background: #ffff; cursor: pointer"
+                                   type="range" value="@Model.ValoracionPromedio?.ToString().Replace(',', '.')" readonly>
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <span class="text-secondary">
+                        Sé el primero en
+                        <a class="text-primary text-decoration-none" asp-controller="Valoraciones" asp-action="RegistrarValoracion"
+                           asp-route-idlibro="@Model.LibroId">
+                            comentar
+                        </a>
+                        @Model.Titulo
+                    </span>
+                }
+
+            }
+
+
+            <div class="col-md-6 pb-5">
+                <span>@Model.NombreAutor</span>
+                <h3>@Model.Titulo</h3>
+                <h3>@Model.PrecioUnitario €</h3>
+                <div style="clear:both"></div>
+                <p class="text-black-50">Género principal: @Model.NombreGenero</p>
+                <p class="par-title mt-4 mb-1 text-secondary">Sobre @Model.Titulo</p>
+                <p class="dummy-description mb-4">
+                    @Model.Descripcion
+                </p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <h2 class="text-secondary">
+        @ViewData["LIBRO_NULL"]
+    </h2>
+}
+
+@section Scripts
+{
+    <script>
+        // $(document).ready(function () {
+        //     $.get('@Url.Action("DetallesLibro", "Libros", new { idLibro = Model?.LibroId })', function (data) {
+        //         $('#detalleLibro').html(data.response);
+        //         $('#detalleLibro').show();
+        //         $('.fa-spin').hide();
+        //     });
+
+        // });
+    </script>
+}
+

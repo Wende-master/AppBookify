@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center fadein-libros-first">
+
+    @if (Context.User.Identity.IsAuthenticated == true)
+    {
+
+        <img class="rounded-pill" width="150" height="150"
+             src="~/images/logo.png">
+
+        <h1 class="display-4">
+            @ViewData["BIENVENIDO"]
+        </h1>
+    }
+    else
+    {
+        <h1 class="display-4">Bienvenido!</h1>
+
+        <img class="rounded-pill" width="150" height="150"
+             src="~/images/logo.png">
+
+        <br />
+        <span class="display-6">
+            <a class="" style="text-decoration: none; color: black" asp-controller="Managed" asp-action="Login">
+                Inicia sesión
+            </a> o <a class="" style="text-decoration: none; color: black" asp-controller="Users" asp-action="RegistroUsuario">
+                Regístrate
+            </a> para un mejor disfrute
+        </span>
+        <p>Redireccionando<span id="countdown" hidden></span>...</p>
+
+        <h3>
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </h3>
+    }
+
+</div>
+@section Scripts {
+    <script>
+        var countdown = 10;
+        var countdownElement = document.getElementById('countdown');
+
+        var countdownInterval = setInterval(function () {
+            countdown--;
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = '@Url.Action("Libros", "Libros")';
+            }
+        }, 1000);
+    </script>
+}

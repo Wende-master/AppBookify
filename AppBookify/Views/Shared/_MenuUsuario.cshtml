@@ -1,0 +1,44 @@
+﻿@{
+    int numCesta = 0;
+    if (Context.User.Identity.IsAuthenticated)
+    {
+        if (serviceCache.GetProducotsFavoritosAsync() != null)
+        {
+            List<Libro> cesta = await serviceCache.GetProducotsFavoritosAsync();
+            if (cesta != null)
+            {
+                numCesta = cesta.Count;
+
+            }
+        }
+    }
+}
+
+
+@if (Context.User.Identity.IsAuthenticated == false)
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Users" asp-action="Perfil">
+            Login
+        </a>
+    </li>
+}
+
+<li class="nav-item">
+    <a class="nav-link" asp-controller="Libros" asp-action="Libros">
+        Libros <i class="fa fa-house"></i>
+    </a>
+</li>
+
+
+<li class="nav-item">
+    <a class="nav-link" asp-controller="Libros" asp-action="Carrito">
+        Cesta
+        @if (numCesta > 0)
+        {
+            <div class="text-dark badge absolute inline-flex h-5 w-5 items-center justify-center text-xs">
+                @numCesta
+            </div>
+        }
+    </a>
+</li>

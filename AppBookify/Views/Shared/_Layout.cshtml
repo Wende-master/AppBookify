@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Bookify</title>
+
+    <link rel="shortcut icon" type="image/x-icon" href="~/logo.ico" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AppBookify.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/libros.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/css/blog.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/all.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/toasts.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.2/dist/css/bootstrap.min.css"> *@
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light header-background border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img class="rounded-pill" width="50" height="50"
+                         src="~/images/logo.png">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+
+                        <partial name="_MenuUsuario" />
+
+                        ﻿@if (Context.User.Identity.IsAuthenticated)
+                        {
+                            if (int.Parse(Context.User.FindFirst(ClaimTypes.Role).Value) == 1)
+                            {
+                                <li class="dropdown">
+                                    <button class="btn dropdown-toggle" type="button" id="dropdownAdmin" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Administrador
+                                        <i class="fas fa-cogs"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownAdmin">
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-controller="Libros" asp-action="RegistrarLibro">Registrar Libro</a>
+                                        </li>
+                                        @*  <li class="nav-item">
+                                <a class="nav-link  text-dark" asp-controller="Generos" asp-action="Generos">Generos</a>
+                                </li>
+                                <li class="nav-item">
+                                <a class="nav-link  text-dark" asp-controller="Autores" asp-action="Autores">Autores</a>
+                                </li>
+
+                                <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Usuarios">Usuarios</a>
+                                </li> *@
+                                    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    ﻿@if (Context.User.Identity.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav">
+                            <li class="dropdown">
+                                <button class="btn dropdown-toggle" type="button" id="dropdownPerfil" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img class="rounded-pill" width="30" height="30"
+                                         src="~/perfiles/default.png">
+                                    @Context.User.FindFirst(ClaimTypes.Name).Value
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownPerfil">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Managed" asp-action="Logout">
+                                            <i class="fa fa-arrow-right-from-bracket"></i> Cerrar Sesión
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Users" asp-action="Perfil">
+                                            Perfil  <i class="fas fa-user-circle"></i>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Libros" asp-action="Carrito">
+                                            Carrito <i class="fa fa-cart-shopping"></i>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Users"
+                                           asp-action="PedidosUsuario">
+                                            Mis pedidos
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    }
+
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-footer">
+        <div class="container">
+            &copy; 2024 - Bookify - <a class="link" asp-area="" asp-controller="Home" asp-action="Privacy">Política de privacidad</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/all.min.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,217 @@
+﻿@model Libro
+
+@{
+    List<Genero> generos = ViewData["GENEROS"] as List<Genero>;
+
+}
+
+
+<section class="h-50 mb-5 pb-2">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-xl-10">
+                <div class="card rounded-3 text-black" style="background-color: #d8d8d8;">
+                    <div class="row g-0" style="border-radius: .3rem">
+                        <div class="col-lg-6">
+                            <div class="card-body mx-md-4">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex align-items-center imagenForm">
+                        <div class="text-black px-3 py-4 p-md-5 mx-md-4">
+
+                            @if (Context.User.Identity.IsAuthenticated)
+                            {
+                                <h4 class="mb-4">
+                                    <strong> @Context.User.FindFirst(ClaimTypes.Name).Value </strong>
+                                    estás registrando un libro
+                                </h4>
+                            }
+                            <p class="small mb-0">
+                                Aprovecha las últimas oportunidades del momento y sácale provecho
+                                a los libros que quieras con nosotros. Ya puedes disfrutar de tus libros favoritos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="h-100 mb-9 pb-3">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form asp-action="RegistrarLibro" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3 text-center">
+                        <span class="text-danger"> @ViewData["IMAGEN"] </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Titulo" class="form-label"></label>
+                        <input asp-for="Titulo" class="form-control" />
+                        <span asp-validation-for="Titulo" class="text-danger"> * </span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label"></label>
+                        <textarea asp-for="Descripcion" class="form-control" placeholder="Esta es la descripción del libro..." rows="5"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"> * </span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Cantidad" class="form-label"></label>
+                        <input asp-for="Cantidad" class="form-control" />
+                        <span asp-validation-for="Cantidad" class="text-danger"> * </span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Precio" class="form-label"></label>
+                        <input asp-for="Precio" class="form-control" />
+                        <span asp-validation-for="Precio" class="text-danger"> * </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <img src="~/libros/defaultlibros.png" alt="Default" data-bs-toggle="popover" title="Imagen"
+                             onmouseenter="mostrarPopover(this)"
+                             class="default-icon position-relative p-1 top-50 start-50 rounded-circle ">
+                        <input required type="file" id="libroImage" asp-for="Imagen" class="form-control d-none" name="imagenlibro" />
+
+                    </div>
+
+                    <div class="mb-3 text-center">
+                        <label class="form-check-label">
+                            <strong>
+                                ¿Añadir autor y géneros a este libro?
+                            </strong>
+                        </label>
+                        &nbsp;&nbsp;
+                        <input type="checkbox" id="chkAgregarAutor"
+                               onclick="mostrarCamposAutor()" class="form-check-input">
+                    </div>
+                    <div id="camposAutor" style="display: none;">
+                        <div class="mb-3">
+                            <input name="nombreAutor" class="form-control" placeholder="Autor" />
+                            <span asp-validation-for="Autor.Nombre" class="text-danger"> * </span>
+                        </div>
+                        <div class="mb-3">
+                            <input name="nacionalidadAutor" class="form-control" placeholder="Nacionalidad" />
+                            <span asp-validation-for="Autor.Nacionalidad" class="text-danger"> * </span>
+                        </div>
+
+                        <div class="accordion" id="accordionPanelsStayOpenExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                        <strong class="text-primary">Géneros</strong> &nbsp;&nbsp; <span class="text-primary">(Elige al menos un género)</span>
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <ul class="list-group">
+                                            @if (generos != null)
+                                            {
+                                                @foreach (var genero in generos)
+                                                {
+                                                    <li class="list-group-item">
+                                                        <input class="form-check-input genero-checkbox" name="idsgeneros[]" type="checkbox" id="@genero.IdGenero" value="@genero.IdGenero">
+                                                        <label class="form-check-label" for="@genero.IdGenero">@genero.Nombre</label>
+                                                    </li>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span>No se encontraron géneros disponibles</span>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* <div class="mb-3 text-secondary">
+                        <ul class="list-group">
+                        @if (generos != null)
+                        {
+                        @foreach (var genero in generos)
+                        {
+                        <li class="list-group-item">
+                        <input class="form-check-input" name="idsgeneros[]" type="checkbox" id="@genero.IdGenero" value="@genero.IdGenero">
+                        <label class="form-check-label" for="@genero.IdGenero">@genero.Nombre</label>
+                        </li>
+                        }
+                        }
+                        else
+                        {
+                        <span>No se encontraron géneros disponibles</span>
+                        }
+                        </ul>
+                        </div> *@
+                    </div>
+                    <div class="mb-3 text-end">
+                        <button class="btn btn-success">Crear libro</button>
+                    </div>
+                </form>
+            </div>
+            <h4 class="text-danger">
+                @ViewData["ERROR_MESSAGE"]
+            </h4>
+        </div>
+    </div>
+</section>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+
+        $(".default-icon").click(function () {
+            $("#libroImage").click();
+        });
+
+        function mostrarPopover(elemento) {
+            var popover = new bootstrap.Popover(elemento);
+            popover.show();
+            setTimeout(function () {
+                popover.dispose();
+            }, 1100);
+        };
+
+        function mostrarCamposAutor() {
+            var checkBox = document.getElementById("chkAgregarAutor");
+            var camposAutor = document.getElementById("camposAutor");
+
+            if (checkBox.checked == true) {
+                camposAutor.style.display = "block";
+            } else {
+                camposAutor.style.display = "none";
+            }
+        };
+
+
+        $(".genero-checkbox").change(function () {
+            var selectedGenres = [];
+            $(".genero-checkbox:checked").each(function () {
+                selectedGenres.push($(this).next('label').text());
+            });
+
+            if (selectedGenres.length > 0) {
+                var headerText;
+                if (selectedGenres.length <= 3) {
+                    headerText = "Géneros seleccionados:";
+                } else {
+                    headerText = "Total (" + selectedGenres.length + ") géneros";
+                    selectedGenres = [headerText];
+                }
+                $(".accordion-header strong").html(selectedGenres.join(", "));
+                $(".accordion-header span").text('');
+            } else {
+                $(".accordion-header strong").html("Géneros");
+                $(".accordion-header span").html("&nbsp;&nbsp;<span class='text-danger'>Elige al menos un género</span>");
+            }
+        });
+    </script>
+}

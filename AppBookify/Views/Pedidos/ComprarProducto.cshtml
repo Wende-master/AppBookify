@@ -1,0 +1,137 @@
+﻿@{
+    ViewData["title"] = "Estás comprando";
+}
+
+@if (Context.User.Identity.IsAuthenticated)
+{
+    string blobs = configuration.GetValue<string>("BlobsUrls:UrlBlobLibros");
+
+    Libro lib = ViewData["LIBRO_ID"] as Libro;
+
+    List<Libro> producutos = await serviceCache.GetProducotsFavoritosAsync();
+
+    Libro libro = producutos.FirstOrDefault(x => x.IdLibro == lib.IdLibro);
+
+    @if (libro != null)
+    {
+        if (libro.IdLibro != lib.IdLibro)
+        {
+            <h3 class="text-secondary">
+                @ViewData["PRODUCTOS"]
+            </h3>
+        }
+        libro.Imagen = blobs + "/" + libro.Imagen;
+
+        <section class="h-50 mb-2 pb-2 fadein-libros-first">
+            <div class="container">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col-xl-10">
+                        <div class="card rounded-3 text-black" style="background-color: #d8d8d8;">
+                            <div class="row g-0" style="border-radius: .3rem">
+                                <div class="col-lg-6">
+                                    <div class="card-body mx-md-4">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 d-flex align-items-center">
+                                <div class="text-black px-3 py-4 p-md-5 mx-md-4">
+
+                                    <span class="alert alert-dismissible">
+                                        <a class="btn btn-outline-dark" asp-controller="Libros" asp-action="Carrito">
+                                            Carrito <i class="fa fa-arrow-left"></i>
+                                        </a>
+
+                                    </span>
+                                    <h4 class="mb-4">
+                                        <strong> @Context.User.FindFirst(ClaimTypes.Name).Value </strong>
+                                    </h4>
+
+                                    <p class="small mb-0">
+                                        Realizando la compra de @libro.Titulo
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bsb-blog-5 py-3 py-md-5 py-xl-8 mb-9 pb-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-4 mb-4 fadein-libros fadein-libros-first">
+                        <div class="card border-0 bg-transparent">
+                            <figure class="card-img-top mb-4 overflow-hidden bsb-overlay-hover">
+                                <a asp-controller="Libros" asp-action="DetallesLibro" asp-route-idLibro="@libro.IdLibro">
+                                    <img class="img-fluid bsb-scale bsb-hover-scale-up" loading="lazy" src="@libro.Imagen" alt="">
+                                </a>
+                                <figcaption>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-eye text-white bsb-hover-fadeInLeft" viewBox="0 0 16 16">
+                                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                                    </svg>
+                                    <h4 class="h6 text-white bsb-hover-fadeInRight mt-2">
+                                        <i class="fa fa-cart-shopping"></i>
+                                    </h4>
+                                </figcaption>
+                            </figure>
+                            <div class="card-body m-0 p-0">
+                                <div class="entry-header mb-3">
+                                    <div class="card-title entry-title h4 m-0">
+                                        <p> @libro.Titulo</p>
+                                    </div>
+
+                                    <ul class="entry-meta list-unstyled d-flex mb-3">
+                                        <li class="">
+                                            <span class="alert alert-info">
+                                                Este libro ya no está en carrito
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="h-100 mb-9 pb-3">
+            <div class="container my-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <form method="post">
+                            <div class="mb-3">
+                                <input name="idlibro" value="@libro.IdLibro" class="form-control" hidden />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Cantidad</label>
+                                <input name="cantidad" value="1" type="number"
+                                       class="form-control" />
+                            </div>
+
+                            <button class="btn btn-primary">
+                                Comprar
+                            </button>
+
+                            @{
+
+                                await this.serviceCache.DeleteProductosAsync(libro.IdLibro);
+                            }
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <h3 class="text-secondary">
+            @ViewData["PRODUCTOS"]
+        </h3>
+    }
+}
