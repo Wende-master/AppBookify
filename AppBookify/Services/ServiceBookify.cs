@@ -197,6 +197,58 @@ namespace AppBookify.Services
 
         }
 
+        public async Task ActualizarPerfil(RegisertModel model, IFormFile? imagen)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Users/ActualizarPerfil/" + model.Nombre +
+                    "/" + model.Apellido + "/" + model.Email;
+
+                client.BaseAddress = new Uri(this.ApiUrl);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+
+                string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
+                if (token != null)
+                    client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+
+                Usuario usuario = new Usuario()
+                {
+                    IdUser = 0,
+                    RolId = 0,
+                    Password = new byte[] { },
+                    Email = model.Email,
+                    Apellido = model.Apellido,
+                    Salt = "",
+                    Nombre = model.Nombre,
+                    Activo = new bool(),
+                    FotoPerfil = model.Imagen,
+                    TokenMail = ""
+                };
+
+                if (imagen != null)
+                {
+
+                    usuario.FotoPerfil = "perfil_" + usuario.IdUser + ".png";
+                    using (Stream stream = imagen.OpenReadStream())
+                    {
+                        await this.blobService.UploadBlobAsync("imagesperfiles", usuario.FotoPerfil, stream);
+                    }
+                }
+
+                string json = JsonConvert.SerializeObject(model);
+                StringContent content = new StringContent
+                    (json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PutAsync(request, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    response = await content.ReadAsAsync<HttpResponseMessage>();
+                }
+            }
+
+        }
+
 
         public async Task RegistrarUsuarioAsync(RegisertModel model, IFormFile imagen)
         {
@@ -242,7 +294,6 @@ namespace AppBookify.Services
         public async Task<Usuario> ActivateUserAsync(string? tokenmail)
         {
             string request = "api/Users/ActivarCuenta?tokenmail=" + tokenmail;
-            //string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
             Usuario usuario = await this.CallApiAsync<Usuario>(request);
             return usuario;
         }

@@ -18,8 +18,9 @@
                     <div class="col-lg-6 d-flex align-items-center imagenForm">
                         <div class="text-black px-3 py-4 p-md-5 mx-md-4">
                             <h4 class="mb-4">
-                                <strong>
-                                    BOOKIFY <button onclick="loadLibros()"> <i class="fa fa-rotate-left"> </i></button>
+                                 <strong>
+                                    BOOKIFY
+                                    <button class="btn btn-outline-success" onclick="loadLibros()"> <i class="fa fa-rotate-left"> </i></button>
                                 </strong>
                             </h4>
                             <p class="small mb-0">
@@ -127,18 +128,28 @@
     <script>
         $(document).ready(function () {
             loadLibros();
-            // $.get('@Url.Action("Libros", "Libros")', function (data) {
-            //     $('#librosContainer').html(data.response);
-            //     $('#librosContainer').show();
-            //     $('.fa-spinner').hide();
-            // });
         });
 
         function loadLibros() {
+            swal({
+                title: 'Cargando libros...',
+                text: 'Por favor, espera...',
+                buttons: false,
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                onOpen: () => {
+                    swal.showLoading();
+                }
+            });
+
             $.get('@Url.Action("Libros", "Libros")', function (data) {
+                swal.close();
+
                 $('#librosContainer').html(data.response);
                 $('#librosContainer').show();
                 $('.fa-spinner').hide();
+            }).fail(function () {
+                swal("Error al cargar libros", "Hubo un error al cargar los libros. Por favor, intenta nuevamente.", "error");
             });
         }
     </script>

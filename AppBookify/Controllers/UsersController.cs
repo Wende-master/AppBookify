@@ -4,6 +4,7 @@ using AppBookify.Models;
 using AppBookify.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text;
 
 namespace AppBookify.Controllers
 {
@@ -43,19 +44,33 @@ namespace AppBookify.Controllers
             return RedirectToAction("Logout", "Managed");
         }
 
-        //[AuthorizeUser]
+        [HttpPost]
+        public async Task<IActionResult> Perfil(int idusuario, string nombre, string apellido,
+            string email, IFormFile? imagen)
+        {
+            //int id = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            Usuario user = await this.service.FindUsuarioAsync(idusuario);
+            if (user != null)
+            {
+                RegisertModel model = new RegisertModel();
+                model.Email = email;
+                model.Nombre = nombre;
+                model.Apellido = apellido;
+
+                await this.service.ActualizarPerfil(model, imagen);
+                return RedirectToAction("Logout", "Managed");
+            }
+            return RedirectToAction("Logout", "Managed");
+        }
+
+
         public async Task<IActionResult> ActivarCuenta(string? tokenmail)
         {
-            //int idusuario = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            //Usuario user = await this.service.FindUsuarioAsync(idusuario);
-            //user != null &&
             if (tokenmail != null)
             {
-                //user.TokenMail = tokenmail;
-                ViewData["ACTIVAR_CUENTA"] = "Su cuenta ha sido activada";
+                ViewData["ACTIVAR_CUENTA"] = "Su cuenta ha sido activada, gracias por su verificación";
                 Usuario usuario = await this.service.ActivateUserAsync(tokenmail);
                 return View(usuario);
-                //return RedirectToAction("Index", "Home");
             }
 
             return RedirectToAction("Logout", "Managed");

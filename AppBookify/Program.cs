@@ -3,7 +3,6 @@ using Azure.Storage.Blobs;
 using AppBookify.Helpers;
 using AppBookify.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Azure.Identity;
 
@@ -106,6 +105,13 @@ builder.Services.AddSession(options =>
 
 
 var app = builder.Build();
+
+//if (!app.Environment.IsDevelopment())
+//{
+//    app.UseExceptionHandler("/Home/Error");
+
+//    app.UseHsts();
+//}
 
 
 app.UseHttpsRedirection();

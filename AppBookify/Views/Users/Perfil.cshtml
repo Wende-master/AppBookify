@@ -4,7 +4,7 @@
 {
     if (Model != null)
     {
-        <section class="h-100 mb-9 pb-3 fadein-libros-first">
+@*         <section class="h-100 mb-9 pb-3 fadein-libros-first">
             <div class="container user-profile mb-4">
                 <div class="row">
                     <div class="col-md-4 p-0">
@@ -18,17 +18,115 @@
                     <div class="col-md-2 mt-3">
                         <a class="btn btn-outline-primary" asp-controller="Users" asp-action="PedidosUsuario">Mis pedidos</a>
                     </div>
-                    @* <div class="col-md-5 mt-2">
-            <a class="btn btn-primary" asp-controller="Users" asp-action="ActualizarPerfil">Actualizar perfil</a>
-            </div> *@
+
                 </div>
             </div>
-        </section>
+        </section> *@
+
+        <div class="main fadein-libros-first">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="contact_form col-sm-12 col-md-12">
+                        <form name="profile_form" id="profile_form" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-4 p-0">
+                                    <img src="@Model.FotoPerfil" width="225" height="201" alt="" class="rounded" />
+                                    <input type="file" id="imagen" name="imagen" style="display:none;" />
+                                    <label for="imagen" class="btn btn-primary">Cambiar Foto</label>
+                                </div>
+
+
+                                <div class="col-sm-4 col-md-4">
+                                    <input name="idusuario" asp-for="IdUser" id="idusuario" hidden class="form-control" type="text" value="@Model.IdUser" disabled />
+                                </div>
+
+                                <div class="col-sm-4 col-md-4">
+                                    <input id="password" asp-for="Password" hidden class="form-control" type="text" value="@Model.IdUser" disabled />
+                                </div>
+
+                                <div class="col-sm-4 col-md-4">
+                                    <label>Nombre</label>
+                                    <input name="nombre" id="nombre" class="form-control" type="text" value="@Model.Nombre" disabled />
+                                </div>
+                                <div class="col-sm-4 col-md-4">
+                                    <label>Apellido</label>
+                                    <input name="apellido" id="apellido" class="form-control" type="text" value="@Model.Apellido" disabled />
+                                </div>
+                                <div class="col-sm-4 col-md-4">
+                                    <label>Email</label>
+                                    <input name="email" id="email" class="form-control" type="email" value="@Model.Email" disabled />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-sm-12 col-md-12 pull-right">
+                        <br />
+                        <a id="edit_btn" class="btn btn-primary" name="submit">Editar Perfil</a>
+                        <a id="submit_btn" class="btn btn-primary" name="submit" style="display:none">Guardar Cambios</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     }
 }
 
 @section Scripts {
     <script>
 
+        $(document).ready(function () {
+
+            $('#edit_btn').click(function () {
+
+                $('input').prop('disabled', false);
+                $('#submit_btn').show();
+                $(this).hide();
+            });
+
+            // Botón de guardar cambios
+            $('#submit_btn').click(function () {
+                // Deshabilita la edición de los campos
+                $('input').prop('disabled', true);
+
+                // Obtener los datos del formulario
+                var idusuario = $('#idusuario').val();
+                var nombre = $('#nombre').val();
+                var apellido = $('#apellido').val();
+                var email = $('#email').val();
+                var imagen = $('#imagen').prop('files')[0];
+
+                var formData = new FormData();
+                formData.append('idusuario', idusuario);
+                formData.append('nombre', nombre);
+                formData.append('apellido', apellido);
+                formData.append('email', email);
+                formData.append('imagen', imagen);
+
+                $.ajax({
+                    url: '@Url.Action("Perfil", "Users")',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+
+                        if (response.success) {
+                            swal("Éxito", "Perfil actualizado correctamente", "success");
+                        } else {
+                            swal("Error", response.errorMessage, "error");
+                        }
+
+                        $('#edit_btn').show();
+                    },
+                    error: function () {
+                        swal("Error", "Hubo un error al actualizar el perfil", "error");
+
+                        $('#edit_btn').show();
+                    }
+                });
+
+                $(this).hide();
+            });
+        });
     </script>
 }

@@ -10,26 +10,6 @@ namespace AppBookify.Services
             this.client = client;
         }
 
-        //METODO PARA MOSTRAR LOS CONTAINERS 
-        //public async Task<List<string>> GetContainersAsync()
-        //{
-        //    List<string> containers = new List<string>();
-
-        //    await foreach (BlobContainerItem item in this.client.GetBlobContainersAsync())
-        //    {
-        //        containers.Add(item.Name);
-        //    }
-        //    return containers;
-        //}
-
-        //METODO PARA CREAR UN CONTENEDOR 
-        //public async Task CreateContainerAsync(string containerName)
-        //{
-        //    await this.client.CreateBlobContainerAsync
-
-        //        (containerName, PublicAccessType.Blob);
-        //}
-
         //METODO PARA SUBIR UN BLOB A UN CONTAINER 
         public async Task UploadBlobAsync(string containerName, string blobName, Stream stream)
         {
@@ -48,6 +28,7 @@ namespace AppBookify.Services
             await containerClient.DeleteBlobAsync(blobName);
         }
 
+        //METODO PARA BUSCAR UN BLOB
         public async Task<BlobClient> FindBlobAsync(string containerName, string blobName)
         {
             BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
