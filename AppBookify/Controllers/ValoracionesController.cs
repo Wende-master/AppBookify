@@ -9,19 +9,23 @@ namespace AppBookify.Controllers
     public class ValoracionesController : Controller
     {
         private ServiceBookify service;
-        public ValoracionesController(ServiceBookify service)
+        private string UrlBlobLibros;
+        public ValoracionesController(ServiceBookify service, IConfiguration configuration)
         {
             this.service = service;
+            UrlBlobLibros = configuration.GetValue<string>("BlobsUrls:UrlBlobLibros");
+
         }
 
 
         [AuthorizeUser]
         public async Task<IActionResult> RegistrarValoracion(int? idlibro)
         {
-            
+
             if (idlibro != null)
             {
                 Libro libro = await this.service.FindLibroAsync(idlibro.Value);
+                libro.Imagen = this.UrlBlobLibros + "/" + libro.Imagen;
 
                 ViewData["LIBRO"] = libro;
             }
