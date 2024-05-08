@@ -1,100 +1,211 @@
 ﻿@model Usuario
+@{
+    List<VistaPedidosUsuario> pedidos = ViewData["MISPEDIDOS"] as List<VistaPedidosUsuario>;
+}
 
 @if (Context.User.Identity.IsAuthenticated)
 {
     if (Model != null)
     {
-@*         <section class="h-100 mb-9 pb-3 fadein-libros-first">
-            <div class="container user-profile mb-4">
-                <div class="row">
-                    <div class="col-md-4 p-0">
-                        <img src="@Model.FotoPerfil" width="225" height="201" alt="" class="rounded" />
-                    </div>
-                    <div class="col-md-6 mt-3">
-                        <h5 class="text-secondary">@Model.Nombre </h5>
-                        <h5 class="text-secondary">@Model.Apellido</h5>
-                        <h5 class="text-secondary">@Model.Email</h5>
-                    </div>
-                    <div class="col-md-2 mt-3">
-                        <a class="btn btn-outline-primary" asp-controller="Users" asp-action="PedidosUsuario">Mis pedidos</a>
-                    </div>
-
-                </div>
-            </div>
-        </section> *@
 
         <div class="main fadein-libros-first">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="contact_form col-sm-12 col-md-12">
-                        <form name="profile_form" id="profile_form" method="post" enctype="multipart/form-data">
-                            <div class="row">
-                                <div class="col-md-4 p-0">
-                                    <img src="@Model.FotoPerfil" width="225" height="201" alt="" class="rounded" />
-                                    <input type="file" id="imagen" name="imagen" style="display:none;" />
-                                    <label for="imagen" class="btn btn-primary">Cambiar Foto</label>
-                                </div>
+                <section class="bsb-blog-5 py-3 py-md-5 py-xl-8">
+                    <div class="container">
+                        <div class="row">
+                            <div class="contact_form col-sm-12 col-md-12">
+                                <form asp-action="Perfil" method="post" enctype="multipart/form-data">
+                                    <div class="row">
 
+                                        <input name="idusuario" asp-for="IdUser" id="idusuario" hidden class="form-control" type="text" value="@Model.IdUser" disabled />
+                                        <input id="password" asp-for="Password" hidden class="form-control" type="text" value="@Model.IdUser" disabled />
 
-                                <div class="col-sm-4 col-md-4">
-                                    <input name="idusuario" asp-for="IdUser" id="idusuario" hidden class="form-control" type="text" value="@Model.IdUser" disabled />
-                                </div>
+                                        <div class="col-md-4 p-0">
+                                            <img src="@Model.FotoPerfil" width="225" height="201" alt="@Model.Nombre" title="@Model.Nombre"
+                                                 class="rounded-circle profile-pic position-relative p-1" id="magen" data-bs-toggle="popover" data-bs-content="Contenido del popover" />
+                                            <input type="file" id="imagen" name="imagen" style="display:none;" />
+                                        </div>
 
-                                <div class="col-sm-4 col-md-4">
-                                    <input id="password" asp-for="Password" hidden class="form-control" type="text" value="@Model.IdUser" disabled />
-                                </div>
+                                        <div class="col-sm-4 col-md-4">
+                                            <label>Nombre</label>
+                                            <input name="nombre" id="nombre" class="form-control input_edit" type="text" value="@Model.Nombre" disabled />
+                                        </div>
+                                        <div class="col-sm-4 col-md-4">
+                                            <label>Apellido</label>
+                                            <input name="apellido" id="apellido" class="form-control input_edit" type="text" value="@Model.Apellido" disabled />
+                                        </div>
+                                        <div class="col-sm-4 col-md-4">
+                                            <label>Email</label>
+                                            <input name="email" id="email" class="form-control input_edit" type="email" value="@Model.Email" disabled />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-sm-12 col-md-12 pull-right">
+                                <br />
+                                <a id="edit_btn" class="btn btn-outline-secondary" name="submit"> Editar Perfil <i class="fa fa-edit"></i></a>
 
-                                <div class="col-sm-4 col-md-4">
-                                    <label>Nombre</label>
-                                    <input name="nombre" id="nombre" class="form-control" type="text" value="@Model.Nombre" disabled />
-                                </div>
-                                <div class="col-sm-4 col-md-4">
-                                    <label>Apellido</label>
-                                    <input name="apellido" id="apellido" class="form-control" type="text" value="@Model.Apellido" disabled />
-                                </div>
-                                <div class="col-sm-4 col-md-4">
-                                    <label>Email</label>
-                                    <input name="email" id="email" class="form-control" type="email" value="@Model.Email" disabled />
+                                <a id="submit_btn" class="btn btn-outline-success" name="submit" style="display: none">Guardar</a>
+
+                                <a id="btn-lbl" class="btn btn-outline-warning edit-label" name="submit" style="display: none">
+                                    Cancelar <i class="fa-solid fa-circle-minus"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                @if (pedidos != null && pedidos.Count != 0)
+                {
+                    <section class="bsb-blog-5 py-3 py-md-5 py-xl-8 mb-9 pb-5">
+                        <div class="accordion" id="accordionPanelsStayOpenExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                        <strong class="text-primary">Mis compras</strong> &nbsp;&nbsp; <span class="text-primary">@pedidos.Count</span>
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-12 text-center">
+                                                    <i class="fa fa-spinner fa-spin-pulse fa-2x"></i>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" id="librosContainer" style="display: none">
+                                                @foreach (var libro in pedidos)
+                                                {
+                                                    <div class="col-12 col-md-6 col-lg-4 mb-4 fadein-libros fadein-libros-first">
+                                                        <div class="card border-0 bg-transparent">
+                                                            <figure class="card-img-top mb-4 overflow-hidden bsb-overlay-hover">
+                                                                <a asp-controller="Libros" asp-action="DetallesLibro" asp-route-idLibro="@libro.LibroId">
+                                                                    <img class="img-fluid bsb-scale bsb-hover-scale-up" loading="lazy" src="@libro.Imagen" alt="">
+                                                                </a>
+                                                                <figcaption>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-eye text-white bsb-hover-fadeInLeft" viewBox="0 0 16 16">
+                                                                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                                                                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                                                                    </svg>
+                                                                    <h4 class="h6 text-white bsb-hover-fadeInRight mt-2">
+                                                                        Pedido de @libro.Nombre - @libro.Apellido
+                                                                    </h4>
+                                                                </figcaption>
+                                                            </figure>
+                                                            <div class="card-body m-0 p-0">
+                                                                <div class="entry-header mb-3">
+                                                                    <div class="card-title entry-title h4 m-0">
+                                                                        <p> @libro.Titulo</p>
+                                                                    </div>
+
+                                                                    <ul class="entry-meta list-unstyled d-flex mb-3">
+                                                                        <li>
+                                                                            <span class="text-secondary">Cantidad: </span> @libro.Cantidad
+                                                                        </li>
+                                                                    </ul>
+                                                                    <ul class="entry-meta list-unstyled d-flex mb-3">
+                                                                        <li>
+                                                                            <span class="text-secondary">Precio: </span>@libro.PrecioTotal
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-footer border-0 bg-transparent p-0 m-0">
+                                                                <ul class="entry-meta list-unstyled d-flex align-items-center m-0">
+                                                                    <li>
+                                                                        <span>
+                                                                            <span class="text-secondary">Fecha: </span>  @libro.FechaPedido
+                                                                        </span>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
-                        </form>
-                    </div>
-                    <div class="col-sm-12 col-md-12 pull-right">
-                        <br />
-                        <a id="edit_btn" class="btn btn-primary" name="submit">Editar Perfil</a>
-                        <a id="submit_btn" class="btn btn-primary" name="submit" style="display:none">Guardar Cambios</a>
-                    </div>
-                </div>
+                        </div>
+                    
+                    </section>
+                }
             </div>
         </div>
 
     }
 }
 
+<!-- Incluir SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 @section Scripts {
     <script>
 
         $(document).ready(function () {
 
+            $.get('@Url.Action("Perfil", "Users")', function (data) {
+                $('#librosContainer').html(data.response);
+                $('#librosContainer').show();
+                $('.fa-spinner').hide();
+            });
+
+            $(".profile-pic").click(function () {
+                $("#imagen").click();
+            });
+
+            $("#img-button-label").hide();
+            $('.edit-label').hide();
+            $("#submit_btn").html("Guardar <i class='fa-solid fa-check'></i>");
+
             $('#edit_btn').click(function () {
+                $("#img-button-label").show();
+                $('.edit-label').show();
+
 
                 $('input').prop('disabled', false);
+                $('.input_edit').prop('disabled', false);
                 $('#submit_btn').show();
                 $(this).hide();
             });
 
-            // Botón de guardar cambios
+            $("#btn-lbl").click(function () {
+                $("#img-button-label").hide();
+                $('.input_edit').prop('disabled', true);
+                $('#submit_btn').hide();
+                $('#edit_btn').show();
+                $('.edit-label').hide();
+            });
+
+
             $('#submit_btn').click(function () {
-                // Deshabilita la edición de los campos
+                // Verificar si los campos están vacíos
+                var nombre = $('#nombre').val();
+                var apellido = $('#apellido').val();
+                var email = $('#email').val();
+
+                if (nombre === "" || apellido === "" || email === "") {
+                    Swal.fire({
+                        title: "Ocurrió un problema",
+                        icon: "error",
+                        text: "Algún campo está vacío, o el email ingresado no esté disponible",
+                        timer: 5000,
+                        showConfirmButton: false,
+                        showLoading: true
+                    });
+                    return;
+                }
+
                 $('input').prop('disabled', true);
 
                 // Obtener los datos del formulario
                 var idusuario = $('#idusuario').val();
-                var nombre = $('#nombre').val();
-                var apellido = $('#apellido').val();
-                var email = $('#email').val();
                 var imagen = $('#imagen').prop('files')[0];
 
+                // Crear FormData con los datos del formulario
                 var formData = new FormData();
                 formData.append('idusuario', idusuario);
                 formData.append('nombre', nombre);
@@ -109,23 +220,44 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
-
-                        if (response.success) {
-                            swal("Éxito", "Perfil actualizado correctamente", "success");
-                        } else {
-                            swal("Error", response.errorMessage, "error");
-                        }
+                        // swal("Éxito", "Perfil actualizado correctamente", "success");
+                        let timerInterval;
+                        Swal.fire({
+                            title: "Se le actualizará la cuenta",
+                            html: "Se le cerrará la sesión para que pueda terminar de actualizar su perfil",
+                            timer: 8000,
+                            timerProgressBar: true,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            },
+                            willClose: () => {
+                                clearInterval(timerInterval);
+                            },
+                            showCancelButton: true,
+                            cancelButtonText: 'Cerrar Sesión',
+                            showConfirmButton: false
+                        }).then((result) => {
+                            if (result.isDismissed) {
+                                window.location.href = "@Url.Action("Logout", "Managed")";
+                            }
+                        });
 
                         $('#edit_btn').show();
                     },
                     error: function () {
-                        swal("Error", "Hubo un error al actualizar el perfil", "error");
+                        Swal.fire({
+                            title: "Ocurrió un problema",
+                            icon: "error",
+                            text: "El email ingresado no está disponible",
+                            timer: 5000,
+                            showConfirmButton: false,
+                            showLoading: true
+                        });
 
                         $('#edit_btn').show();
                     }
                 });
 
-                $(this).hide();
             });
         });
     </script>

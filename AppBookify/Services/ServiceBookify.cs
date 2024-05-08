@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Security.Claims;
 
 namespace AppBookify.Services
 {
@@ -212,10 +213,13 @@ namespace AppBookify.Services
                 if (token != null)
                     client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
 
+                int id = int.Parse(httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier.ToString()));
+                int idRol = int.Parse(httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Role.ToString()));
+
                 Usuario usuario = new Usuario()
                 {
-                    IdUser = 0,
-                    RolId = 0,
+                    //IdUser = id,
+                    RolId = idRol,
                     Password = new byte[] { },
                     Email = model.Email,
                     Apellido = model.Apellido,
@@ -226,6 +230,14 @@ namespace AppBookify.Services
                     TokenMail = ""
                 };
 
+                usuario = await FindUsuarioAsync(id);
+
+                string json = JsonConvert.SerializeObject(usuario);
+                StringContent content = new StringContent
+                    (json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PutAsync(request, content);
+
                 if (imagen != null)
                 {
 
@@ -234,16 +246,7 @@ namespace AppBookify.Services
                     {
                         await this.blobService.UploadBlobAsync("imagesperfiles", usuario.FotoPerfil, stream);
                     }
-                }
 
-                string json = JsonConvert.SerializeObject(model);
-                StringContent content = new StringContent
-                    (json, Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await client.PutAsync(request, content);
-                if (response.IsSuccessStatusCode)
-                {
-                    response = await content.ReadAsAsync<HttpResponseMessage>();
                 }
             }
 
@@ -576,7 +579,6 @@ namespace AppBookify.Services
 
         #endregion
 
-
         #region PEDIDOS
         public async Task<List<VistaPedidosUsuario>> GetPedidosUsuariosAsync(int idusuario)
         {
@@ -659,5 +661,51 @@ namespace AppBookify.Services
         }
 
         #endregion
+
+        #region VALORACIONES
+        public async Task<List<ValoracionesLibro>> GetValoracionesLibroAsync(int? idlibro)
+        {
+            string request =
+                "api/Valoraciones/GetValoracionesLibro/" + idlibro;
+            List<ValoracionesLibro> valoraciones =
+                await this.CallApiAsync<List<ValoracionesLibro>>(request);
+            return valoraciones;
+        }
+
+        public async Task<ValoracionesLibro> RegistrarValoracion(ValoracionesLibro valoracionesLibro)
+        {
+
+
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Valoraciones";
+                client.BaseAddress = new Uri(this.ApiUrl);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                string json = JsonConvert.SerializeObject(valoracionesLibro);
+                StringContent content = new StringContent
+                    (json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync(request, content);
+                string jsonValoracion = await response.Content.ReadAsStringAsync();
+
+                return JsonConvert.DeserializeObject<ValoracionesLibro>(jsonValoracion);
+
+                //string json = JsonConvert.SerializeObject(valoracionesLibro);
+                //StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                //HttpResponseMessage response = await client.PostAsync(request, content);
+
+                //if (response.IsSuccessStatusCode)
+                //{
+
+                //}
+
+            }
+
+        }
+
+        #endregion
+
     }
 }

@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/AppBookify.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/libros.css" asp-append-version="true" />
 
     <link rel="stylesheet" href="~/css/blog.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/sweetalert.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/libros.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/all.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/toasts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sweetalert.min.css" asp-append-version="true" />
 
 </head>
 <body>
@@ -47,16 +47,6 @@
                                         <li class="nav-item">
                                             <a class="nav-link text-dark" asp-controller="Libros" asp-action="RegistrarLibro">Registrar Libro</a>
                                         </li>
-                                        @*  <li class="nav-item">
-                                <a class="nav-link  text-dark" asp-controller="Generos" asp-action="Generos">Generos</a>
-                                </li>
-                                <li class="nav-item">
-                                <a class="nav-link  text-dark" asp-controller="Autores" asp-action="Autores">Autores</a>
-                                </li>
-
-                                <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Usuarios">Usuarios</a>
-                                </li> *@
                                     </ul>
                                 </li>
                             }
@@ -119,8 +109,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/sweetalert.min.js" asp-append-version="true"></script>
     <script src="~/js/all.min.js" asp-append-version="true"></script>
+    <script src="~/js/sweetalert.min.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

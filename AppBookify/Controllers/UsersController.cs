@@ -39,26 +39,40 @@ namespace AppBookify.Controllers
             {
                 user.FotoPerfil = UrlBlobPerfiles + "/" + user.FotoPerfil;
 
+                List<VistaPedidosUsuario> mislibros =
+                    await this.service.GetPedidosUsuariosAsync(user.IdUser);
+                foreach (var libro in mislibros)
+                {
+                    libro.Imagen = this.UrlBlobLibros + "/" + libro.Imagen;
+                }
+
+                ViewData["MISPEDIDOS"] = mislibros;
+
                 return View(user);
             }
             return RedirectToAction("Logout", "Managed");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Perfil(int idusuario, string nombre, string apellido,
-            string email, IFormFile? imagen)
+        public async Task<IActionResult> Perfil(int? idusuario, string nombre, string apellido,
+             string email, IFormFile? imagen)
         {
-            //int id = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            Usuario user = await this.service.FindUsuarioAsync(idusuario);
-            if (user != null)
+            RegisertModel model = new RegisertModel();
+            model.Email = email;
+            model.Nombre = nombre;
+            model.Apellido = apellido;
+            if (imagen != null)
             {
-                RegisertModel model = new RegisertModel();
-                model.Email = email;
-                model.Nombre = nombre;
-                model.Apellido = apellido;
+                model.Imagen = imagen.FileName;
+            }
+
+            if (idusuario != null)
+            {
+                //model.Imagen = "perfil_" + idusuario.Value + ".png";
 
                 await this.service.ActualizarPerfil(model, imagen);
-                return RedirectToAction("Logout", "Managed");
+
+                return RedirectToAction("Perfil");
             }
             return RedirectToAction("Logout", "Managed");
         }
@@ -72,9 +86,10 @@ namespace AppBookify.Controllers
                 Usuario usuario = await this.service.ActivateUserAsync(tokenmail);
                 return View(usuario);
             }
-
-            return RedirectToAction("Logout", "Managed");
-
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
 
@@ -129,58 +144,11 @@ namespace AppBookify.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["ERROR_MESSAGE"] = "Ha ocurrido un error, compruebe que los campos estén completos" + ex.Message;
+                ViewData["ERROR_MESSAGE"] = "Ha ocurrido un error, compruebe que los campos estén completos: " + ex.Message.ToString();
                 return View();
             }
 
         }
-
-
-        //[AuthorizeUser]
-        //public async Task<IActionResult> ActualizarPerfil()
-        //{
-        //    var usuarioImagen = HttpContext.User.FindFirst("FotoPerfil")?.Value;
-        //    var idusuario = int.Parse(HttpContext.User.FindFirst("idUsuario")?.Value);
-        //    Usuario usuario = await this.repo.GetPerfil(idusuario);
-
-        //    usuarioImagen = this.helperPathProvider.MapPathURLProvider(usuarioImagen, Folders.Perfiles);
-        //    usuario.FotoPerfil = usuarioImagen;
-        //    return View(usuario);
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> ActualizarPerfil(int id, string nombre, string apellido, string email, IFormFile? imagen)
-        //{
-        //    try
-        //    {
-        //        if (imagen != null)
-        //        {
-        //            await this.helperUploadFiles.UploadFilesAsync(imagen, Folders.Perfiles);
-        //        }
-
-        //        if (imagen == null)
-        //            await this.repo.ActualizarUsuarioAsync(id, nombre, apellido, email, null);
-        //        else
-        //            await this.repo.ActualizarUsuarioAsync(id, nombre, apellido, email, imagen.FileName);
-
-        //        return RedirectToAction("Perfil", "Users");
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ViewData["ERROR_MESSAGE"] = ex.Message;
-        //        return View();
-        //    }
-
-        //}
-
-
-        //public async Task<IActionResult> ActivateUser(string? tokenmail)
-        //{
-        //    ViewData["ACTIVADA"] = "Su cuenta ya está activa";
-        //    await this.service.ActivateUserAsync(tokenmail);
-        //    return View();
-        //}
 
     }
 }

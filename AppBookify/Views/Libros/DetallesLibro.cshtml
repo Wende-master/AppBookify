@@ -2,6 +2,7 @@
 
 @if (Model != null)
 {
+    List<ValoracionesLibro> valoraciones = ViewData["VALORACIONES"] as List<ValoracionesLibro>;
 
     <div class="container my-5 fadein-libros-first">
         <div class="row">
@@ -30,6 +31,18 @@
 
                 @if (Model.ValoracionPromedio != null)
                 {
+                    if (valoraciones != null)
+                    {
+                        <ul class="list-group">
+                            @foreach (var val in valoraciones)
+                            {
+                                <li class="list-group-item">
+                                    <p class="text-primary">@val.Comentario</p>
+                                </li>
+                            }
+                        </ul>
+                    }
+
                     <div class="p-3">
                         <a class="text-danger text-decoration-none" asp-controller="Valoraciones" asp-action="RegistrarValoracion"
                            asp-route-idlibro="@Model.LibroId">

@@ -36,10 +36,18 @@ namespace AppBookify.Controllers
         {
             LibrosViewModel viewModel =
             await this.service.FindLibroViewAsync(idLibro);
+
+            List<ValoracionesLibro> valoraciones =
+                await this.service.GetValoracionesLibroAsync(idLibro);
+
             if (viewModel != null)
             {
                 viewModel.Imagen = UrlBlobLibros + "/" + viewModel.Imagen;
-
+                
+                if (valoraciones != null)
+                {
+                    ViewData["VALORACIONES"] = valoraciones;
+                }
                 return View(viewModel);
             }
             ViewData["LIBRO_NULL"] = "No existe el libro";
