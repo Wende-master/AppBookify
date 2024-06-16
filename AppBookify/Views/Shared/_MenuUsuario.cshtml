@@ -2,13 +2,23 @@
     int numCesta = 0;
     if (Context.User.Identity.IsAuthenticated)
     {
-        if (serviceCache.GetProducotsFavoritosAsync() != null)
+        int idusuario = int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+        // if (serviceCache.GetProductosFavoritosAsync() != null)
+        // {
+        //     List<Libro> cesta = await serviceCache.GetProductosFavoritosAsync();
+        //     if (cesta != null)
+        //     {
+        //         numCesta = cesta.Count;
+
+        //     }
+        // }
+
+        if (Context.Session.GetObject<List<int>>("FAVORITOS", idusuario) != null)
         {
-            List<Libro> cesta = await serviceCache.GetProducotsFavoritosAsync();
+            List<int> cesta = Context.Session.GetObject<List<int>>("FAVORITOS", idusuario);
             if (cesta != null)
             {
                 numCesta = cesta.Count;
-
             }
         }
     }
@@ -36,8 +46,8 @@
         Cesta
         @if (numCesta > 0)
         {
-            <div class="text-dark badge absolute inline-flex h-5 w-5 items-center justify-center text-xs">
-                @numCesta
+            <div class="text-danger badge absolute inline-flex h-5 w-5 items-center justify-center text-xs">
+                <i class="fa-solid fa-cart-shopping"></i> @numCesta
             </div>
         }
     </a>

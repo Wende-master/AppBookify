@@ -47,61 +47,84 @@
 @if (Model != null)
 {
     <section class="bsb-blog-5 py-3 py-md-5 py-xl-8 mb-9 pb-5">
+
         <div class="container">
-            <div class="row">
-                @foreach (var libro in Model)
-                {
+            <form method="post">
+                <div class="row">
+                    @foreach (var libro in Model)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4 mb-4 fadein-libros-first">
+                            <div class="card border-0 bg-transparent">
+                                <figure class="card-img-top mb-4 overflow-hidden bsb-overlay-hover">
+                                    <a asp-controller="Libros" asp-action="DetallesLibro" asp-route-idLibro="@libro.IdLibro">
+                                        <img class="img-fluid bsb-scale bsb-hover-scale-up" loading="lazy" src="@libro.Imagen" alt="">
+                                    </a>
+                                    <figcaption>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-eye text-white bsb-hover-fadeInLeft" viewBox="0 0 16 16">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                                        </svg>
+                                        <h4 class="h6 text-white bsb-hover-fadeInRight mt-2">
+                                            <i class="fa fa-cart-shopping"></i>
+                                        </h4>
+                                    </figcaption>
+                                </figure>
+                                <div class="card-body m-0 p-0">
+                                    <div class="entry-header mb-3">
+                                        <div class="card-title entry-title h4 m-0">
+                                            <p> @libro.Titulo</p>
+                                        </div>
 
-                    <div class="col-12 col-md-6 col-lg-4 mb-4 fadein-libros fadein-libros-first">
-                        <div class="card border-0 bg-transparent">
-                            <figure class="card-img-top mb-4 overflow-hidden bsb-overlay-hover">
-                                <a asp-controller="Libros" asp-action="DetallesLibro" asp-route-idLibro="@libro.IdLibro">
-                                    <img class="img-fluid bsb-scale bsb-hover-scale-up" loading="lazy" src="@libro.Imagen" alt="">
-                                </a>
-                                <figcaption>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-eye text-white bsb-hover-fadeInLeft" viewBox="0 0 16 16">
-                                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
-                                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-                                    </svg>
-                                    <h4 class="h6 text-white bsb-hover-fadeInRight mt-2">
-                                        <i class="fa fa-cart-shopping"></i>
-                                    </h4>
-                                </figcaption>
-                            </figure>
-                            <div class="card-body m-0 p-0">
-                                <div class="entry-header mb-3">
-                                    <div class="card-title entry-title h4 m-0">
-                                        <p> @libro.Titulo</p>
+                                        <ul class="entry-meta list-unstyled d-flex mb-3">
+                                            @* <li>
+                                    <a class="btn btn-danger" asp-controller="Libros"
+                                    asp-route-idlibro="@libro.IdLibro"
+                                    asp-action="EliminarProducto">
+                                    Eliminar <i class="fa fa-trash-alt"></i>
+                                    </a>
+                                    </li> *@
+                                            <li>
+                                                <a class="btn btn-danger w-100" asp-controller="Libros"
+                                                   asp-route-idlibro="@libro.IdLibro"
+                                                   asp-action="EliminarProducto">
+                                                    Eliminar de carrito <i class="fa fa-trash-alt"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </div>
-
-                                    <ul class="entry-meta list-unstyled d-flex mb-3">
+                                </div>
+                                <div class="card-footer border-0 bg-transparent p-0 m-0">
+                                    <ul class="entry-meta list-unstyled d-flex align-items-center m-0">
                                         <li>
-                                            <a class="btn btn-danger" asp-controller="Libros"
-                                               asp-route-idlibro="@libro.IdLibro"
-                                               asp-action="EliminarProducto">
-                                                Eliminar <i class="fa fa-trash-alt"></i>
-                                            </a>
+                                            @* <span>
+                                    <a class="btn btn-success" asp-controller="Pedidos" asp-action="ComprarProducto"
+                                    asp-route-idlibro="@libro.IdLibro">
+                                    Comprar <i class="fa fa-cart-shopping"></i>
+                                    </a>
+                                    </span> *@
+                                            <span>
+                                                <input type="number" name="cantidad" value="1" class="form-control" />
+                                            </span>
+                                            <input type="hidden" name="idlibro" value="@libro.IdLibro" class="form-control" />
+
                                         </li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="card-footer border-0 bg-transparent p-0 m-0">
-                                <ul class="entry-meta list-unstyled d-flex align-items-center m-0">
-                                    <li>
-                                        <span>
-                                            <a class="btn btn-success" asp-controller="Pedidos" asp-action="ComprarProducto"
-                                               asp-route-idlibro="@libro.IdLibro">
-                                                Comprar <i class="fa fa-cart-shopping"></i>
-                                            </a>
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
                         </div>
-                    </div>
-                }
-            </div>
+
+                    }
+                </div>
+
+                <span>
+                    <button class="btn btn-success w-100"
+                            asp-controller="Libros" asp-action="Carrito">
+                        Comprar <i class="fa fa-cart-shopping"></i>
+                    </button>
+                </span>
+            </form>
         </div>
+
     </section>
 
 }

@@ -4,11 +4,11 @@
 
 @if (Context.User.Identity.IsAuthenticated)
 {
-    string blobs = configuration.GetValue<string>("BlobsUrls:UrlBlobLibros");
+   @*  string blobs = configuration.GetValue<string>("BlobsUrls:UrlBlobLibros");
 
     Libro lib = ViewData["LIBRO_ID"] as Libro;
 
-    List<Libro> producutos = await serviceCache.GetProducotsFavoritosAsync();
+    List<Libro> producutos = await serviceCache.GetProductosFavoritosAsync();
 
     Libro libro = producutos.FirstOrDefault(x => x.IdLibro == lib.IdLibro);
 
@@ -133,5 +133,5 @@
         <h3 class="text-secondary">
             @ViewData["PRODUCTOS"]
         </h3>
-    }
+    } *@
 }

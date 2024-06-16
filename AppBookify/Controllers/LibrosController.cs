@@ -1,4 +1,5 @@
-﻿using AppBookify.Filters;
+﻿using AppBookify.Extensions;
+using AppBookify.Filters;
 using AppBookify.Models;
 using AppBookify.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,16 +10,17 @@ namespace AppBookify.Controllers
     public class LibrosController : Controller
     {
         private ServiceBookify service;
-        private ServiceCacheRedis cache;
+        //private ServiceCacheRedis cache;
         private string UrlBlobLibros;
+        private string UrlBlobPerfiles;
         public LibrosController(ServiceBookify service,
-            ServiceCacheRedis cache,
+             //ServiceCacheRedis cache,
              IConfiguration configuration
             )
         {
             this.service = service;
-            this.cache = cache;
-
+            //this.cache = cache;
+            UrlBlobPerfiles = configuration.GetValue<string>("BlobsUrls:UrlBlobPerfiles");
             UrlBlobLibros = configuration.GetValue<string>("BlobsUrls:UrlBlobLibros");
         }
         public async Task<IActionResult> Libros()
@@ -40,12 +42,22 @@ namespace AppBookify.Controllers
             List<ValoracionesLibro> valoraciones =
                 await this.service.GetValoracionesLibroAsync(idLibro);
 
+            List<Usuario> usuarios =
+                await this.service.FindUsersValoracionAsync(idLibro);
+
             if (viewModel != null)
             {
+
+                foreach (var user in usuarios)
+                {
+                    user.FotoPerfil = UrlBlobPerfiles + "/" + user.FotoPerfil;
+                }
+
                 viewModel.Imagen = UrlBlobLibros + "/" + viewModel.Imagen;
-                
+
                 if (valoraciones != null)
                 {
+                    ViewData["USUARIOS_VALORACION"] = usuarios;
                     ViewData["VALORACIONES"] = valoraciones;
                 }
                 return View(viewModel);
@@ -64,50 +76,149 @@ namespace AppBookify.Controllers
             if (user != null)
             {
 
-                List<Libro> libros =
-               await this.cache.GetProducotsFavoritosAsync();
-
-                if (libros != null)
+                List<int> carrito = HttpContext.Session.GetObject<List<int>>("FAVORITOS", user.IdUser); /* HttpContext.Session.GetObject<List<int>>("FAVORITOS");*/;
+                if (carrito != null)
                 {
-                    foreach (var img in libros)
+                    List<Libro> libros = await this.service.FindListaLibrosAsync(carrito);
+
+                    if (libros != null)
                     {
-                        if (img != null)
+                        foreach (var img in libros)
                         {
+
                             img.Imagen = UrlBlobLibros + "/" + img.Imagen;
                         }
-
                         return View(libros);
                     }
-                    return View(libros);
-                }
 
+                }
                 ViewData["CARRITO"] = "No tienes nigún libro en carrito";
                 return View();
+
+                // List<Libro> libros =
+                //await this.cache.GetProductosFavoritosAsync();
+
+                // if (libros != null)
+                // {
+                //     foreach (var img in libros)
+                //     {
+                //         if (img != null)
+                //         {
+                //             img.Imagen = UrlBlobLibros + "/" + img.Imagen;
+                //         }
+
+                //         return View(libros);
+                //     }
+                //     return View(libros);
+                // }
+
+                // ViewData["CARRITO"] = "No tienes nigún libro en carrito";
+                // return View();
             }
             return RedirectToAction("Logout", "Managed");
         }
 
-        public async Task<IActionResult> AñadirFavorito(int idlibro)
+        [AuthorizeUser]
+        [HttpPost]
+        public async Task<IActionResult> Carrito(List<int>? cantidad, List<int>? idlibro)
+        {
+
+            try
+            {
+                if (!User.Identity.IsAuthenticated)
+                {
+                    return RedirectToAction("Logout", "Managed");
+                }
+
+                int idusuario = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                Usuario user = await this.service.FindUsuarioAsync(idusuario);
+
+                List<int> carrito = HttpContext.Session.GetObject<List<int>>("FAVORITOS", user.IdUser); /* HttpContext.Session.GetObject<List<int>>("FAVORITOS");*/
+                if (carrito == null || carrito.Count == 0)
+                {
+                    ViewData["CARRITO"] = "No tienes ningún libro en el carrito";
+                    return RedirectToAction("Carrito");
+                }
+                if (cantidad == null || idlibro == null)
+                {
+                    ViewData["CARRITO"] = "No tienes ningún libro en el carrito";
+                    return View();
+                }
+                await service.RealizarPedidoAsync(cantidad, idlibro);
+
+                HttpContext.Session.Remove($"FAVORITOS_{user.IdUser}");
+                //HttpContext.Session.Remove("FAVORITOS");
+
+                return RedirectToAction("PedidosUsuario", "Users");
+            }
+            catch (Exception ex)
+            {
+                ViewData["MENSAJE"] = ex.Message;
+                return RedirectToAction("Carrito");
+            }
+        }
+
+        public async Task<IActionResult> AñadirFavorito(int? idlibro)
         {
             int idusuario = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             Usuario user = await this.service.FindUsuarioAsync(idusuario);
             if (user != null)
             {
-                Libro libro = await this.service.FindLibroAsync(idlibro);
-                await this.cache.AddProductoFavoritoAsync(libro);
-                ViewData["MENSAJE"] = "Libro almacenado";
-                return RedirectToAction("Carrito", "Libros");
+                if (idlibro != null)
+                {
+                    List<int> carrito;
+                    //if (HttpContext.Session.GetString("FAVORITOS") == null)
+                    if (HttpContext.Session.GetString($"FAVORITOS_{idusuario}") == null)
+                    {
+                        carrito = new List<int>();
+                    }
+                    else
+                    {
+                        //carrito = HttpContext.Session.GetObject<List<int>>("FAVORITOS");
+                        carrito = HttpContext.Session.GetObject<List<int>>("FAVORITOS", user.IdUser);
+                    }
+                    carrito.Add(idlibro.Value);
+                    //HttpContext.Session.SetObject("FAVORITOS", carrito);
+                    HttpContext.Session.SetObject("FAVORITOS", user.IdUser, carrito);
+
+                    return RedirectToAction("Carrito", "Libros");
+                }
+
+                //Libro libro = await this.service.FindLibroAsync(idlibro);
+                //await this.cache.AddProductoFavoritoAsync(libro);
+                //ViewData["MENSAJE"] = "Libro almacenado";
+                //return RedirectToAction("Carrito", "Libros");
             }
 
             return RedirectToAction("Logout", "Managed");
         }
 
-        public async Task<IActionResult> EliminarProducto(int idlibro)
+        public async Task<IActionResult> EliminarProducto(int? idlibro)
         {
-            await this.cache.DeleteProductosAsync(idlibro);
+            int idusuario = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            Usuario user = await this.service.FindUsuarioAsync(idusuario);
+
+            if (idlibro != null)
+            {
+                List<int> carrito = HttpContext.Session.GetObject<List<int>>("FAVORITOS", user.IdUser);
+                    /*HttpContext.Session.GetObject<List<int>>("FAVORITOS")*/
+                carrito.Remove(idlibro.Value);
+                if (carrito.Count() == 0)
+                {
+                    //HttpContext.Session.Remove("FAVORITOS");
+                    HttpContext.Session.Remove($"FAVORITOS_{user.IdUser}");
+                }
+                else
+                {
+                    HttpContext.Session.SetObject("FAVORITOS", user.IdUser, carrito);
+                    //HttpContext.Session.SetObject("FAVORITOS", carrito);
+                }
+            }
+            //await this.cache.DeleteProductosAsync(idlibro);
             return RedirectToAction("Carrito");
         }
         //FIN CACHE
+
 
         [AuthorizeUser]
         public async Task<IActionResult> RegistrarLibro()

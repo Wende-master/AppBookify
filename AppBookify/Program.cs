@@ -69,18 +69,18 @@ SecretClient secretClient =
 builder.Services.BuildServiceProvider().GetService<SecretClient>();
 
 
-//CACHE REDIS
-var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
-var credential = new DefaultAzureCredential();
-secretClient = new SecretClient(new Uri(keyVaultUri), credential);
+////CACHE REDIS
+//var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
+//var credential = new DefaultAzureCredential();
+//secretClient = new SecretClient(new Uri(keyVaultUri), credential);
 
-builder.Services.AddStackExchangeRedisCache(async options =>
-{
-    KeyVaultSecret secretCache = await secretClient.GetSecretAsync("CacheRedisBookify");
-    options.Configuration = secretCache.Value;
-});
+//builder.Services.AddStackExchangeRedisCache(async options =>
+//{
+//    KeyVaultSecret secretCache = await secretClient.GetSecretAsync("CacheRedisBookify");
+//    options.Configuration = secretCache.Value;
+//});
 
-builder.Services.AddTransient<ServiceCacheRedis>();
+//builder.Services.AddTransient<ServiceCacheRedis>();
 
 
 //STORAGE

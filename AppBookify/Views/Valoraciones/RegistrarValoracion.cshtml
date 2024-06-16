@@ -89,7 +89,7 @@
 {
     if (libro != null)
     {
-        <section class="h-100 mb-4 pb-3" style="">
+        <section class="h-100 mb-4 pb-2" style="">
             <div class="custom-container">
                 <div class="container my-5 fadein-libros-first">
                     <div class="row">
@@ -121,10 +121,11 @@
 
                     <div class="custom-form-group">
                         <label asp-for="ValoracionDecimal" class="form-label">Valoración sobre 5 estrellas</label>
-                        <input asp-for="ValoracionDecimal" type="number" id="valoracionDecimal"
-                               name="valoracionDecimal" min="0" max="5" step="0.1" required>
+                        <input asp-for="ValoracionDecimal" class="rating" max="5" step="0.5" style="--value: 1; cursor: pointer"
+                               name="valoracionDecimal" type="range" oninput="updateValue(this.value)">
                         <span asp-validation-for="ValoracionDecimal" class="text-danger"></span>
                     </div>
+
                     <div class="custom-form-group">
                         <label asp-for="Comentario" class="form-label">Introduce tu feedback</label>
                         <textarea asp-for="Comentario" id="comentario" name="comentario" rows="4"></textarea>
@@ -135,4 +136,12 @@
             </div>
         </section>
     }
+}
+@section Scripts {
+    <script>
+        function updateValue(value) {
+            document.querySelector('.rating').style.setProperty('--value', value);
+        }
+
+    </script>
 }

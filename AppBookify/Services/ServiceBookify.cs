@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Security.Claims;
+using Azure.Core;
 
 namespace AppBookify.Services
 {
@@ -158,6 +159,26 @@ namespace AppBookify.Services
         #endregion
 
         #region USUARIOS
+
+        public async Task<List<Usuario>> GetUsuariosAsync()
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Users";
+                client.BaseAddress = new Uri(this.ApiUrl);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+
+                string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
+                if (token != null)
+                    client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                List<Usuario> usuarios =
+                    await this.CallApiAsync<List<Usuario>>(request);
+                return usuarios;
+            }
+
+        }
+
         public async Task<Usuario> FindUsuarioAsync(int idusuario)
         {
             string request = "api/Users/" + idusuario;
@@ -252,6 +273,57 @@ namespace AppBookify.Services
 
         }
 
+        //MODIFICAR LA PASSWORD
+        public async Task ActualizarPasswordAsync(string oldPassword, string newPassword)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Users/ActualizarPassword/" + oldPassword + "/" + newPassword;
+
+                client.BaseAddress = new Uri(this.ApiUrl);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+
+                string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
+                if (token != null)
+                    client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+
+                HttpResponseMessage response = await client.PutAsync(request, null);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Se produjo un error al cambiar la contraseña: {errorMessage}");
+                    //throw new Exception("Se produjo un error al cambiar la contraseña");
+                }
+            }
+        }
+
+
+        //RESET PASSWORD 
+        public async Task<string> RecuperarTokenAsync(string email)
+        {
+            string request = "api/Users/RecuperarTokenPass/" + email;
+            string codigo = await this.CallApiAsync<string>(request);
+            return codigo;
+        }
+
+        public async Task ResetPasswordAsync(string email, string password, string codigo)
+        {
+            string request = "/api/Users/UpdatePassword/" + password + "/" + codigo + "/" + email;
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.ApiUrl);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+
+                HttpResponseMessage response = await client.PutAsync(request, null);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error al restablecer la contraseña");
+                }
+            }
+        }
 
         public async Task RegistrarUsuarioAsync(RegisertModel model, IFormFile imagen)
         {
@@ -312,34 +384,6 @@ namespace AppBookify.Services
 
             return modelLibros;
         }
-
-        public async Task<List<ModelLibro>> FiltraLibrosAsync
-            (int? numeropagina, int? tamanyopagina,
-            List<int>? genero = null, List<int>? estado = null)
-        {
-            //string request = "api/Libros/FiltrarlibrosModel?numeropagina=" + numeropagina + "&tamanyopagina=" + tamanyopagina +
-            //    "&genero=" + genero + "&estado=" + estado;
-
-            string request = $"api/Libros/FiltrarlibrosModel?numeropagina={numeropagina}&tamanyopagina={tamanyopagina}";
-
-            if (genero != null && genero.Any())
-            {
-                string generoString = string.Join(",", genero);
-                request += $"&genero={generoString}";
-            }
-
-            if (estado != null && estado.Any())
-            {
-                string estadoString = string.Join(",", estado);
-                request += $"&estado={estadoString}";
-            }
-
-
-            List<ModelLibro> librosFiltrados =
-                await this.CallApiAsync<List<ModelLibro>>(request);
-            return librosFiltrados;
-        }
-
         public async Task<Libro> FindLibroAsync(int idlibro)
         {
             string request = "api/Libros/" + idlibro;
@@ -603,46 +647,67 @@ namespace AppBookify.Services
 
         }
 
+        //public async Task<PedidoConDetallesViewModel> RealizarPedidoAsync(int cantidad, List<int> idLibro)
+        //{
+        //    try
+        //    {
+        //        string request = "api/pedidos/Comprar?idLibro=" + idLibro + "&cantidad=" + cantidad;
 
-        public async Task<PedidoConDetallesViewModel>
-            RealizarCompraAsync(int idUsuario, int cantidad, int idLibro)
+        //        using (HttpClient client = new HttpClient())
+        //        {
+        //            client.BaseAddress = new Uri(this.ApiUrl);
+        //            client.DefaultRequestHeaders.Clear();
+        //            client.DefaultRequestHeaders.Accept.Add(this.header);
+
+        //            string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
+        //            if (!string.IsNullOrEmpty(token))
+        //                client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+
+        //            HttpResponseMessage response = await client.PostAsync(request, null);
+
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                return await response.Content.ReadAsAsync<PedidoConDetallesViewModel>();
+        //            }
+        //            else
+        //            {
+        //                return null;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Error al realizar la compra", ex);
+        //    }
+        //}
+
+        //MÉTODO COMPLETO CON SESSION EN LUGAR DE CACHE REDIS
+        public async Task<PedidoConDetallesViewModel> RealizarPedidoAsync(List<int> cantidades, List<int> idLibros)
         {
             try
             {
-                PedidoConDetallesViewModel model = new PedidoConDetallesViewModel
-                {
-                    Pedido = new Pedido
-                    {
-                        IdPedido = 0,
-                        Albaran = 0,
-                        IdUsuario = idUsuario,
-                        FechaPedido = DateTime.UtcNow,
-                        IdEstadoPedido = 0,
-                        PrecioTotal = 0
-                    },
-                    Detalle = new DetallesPedido
-                    {
-                        IdDetallePedido = 0,
-                        IdPedido = 0,
-                        IdLibro = idLibro,
-                        Cantidad = cantidad
-                    }
-                };
+                var queryParameters = new List<string>();
 
+                for (int i = 0; i < idLibros.Count; i++)
+                {
+                    queryParameters.Add($"idLibro[{i}]={idLibros[i]}");
+                    queryParameters.Add($"cantidad[{i}]={cantidades[i]}");
+                }
+
+                var queryString = string.Join("&", queryParameters);
+                string request = $"api/pedidos/Comprar?{queryString}";
 
                 using (HttpClient client = new HttpClient())
                 {
-                    string request = "api/Pedidos/RealizarPedidoConDetalles";
                     client.BaseAddress = new Uri(this.ApiUrl);
                     client.DefaultRequestHeaders.Clear();
                     client.DefaultRequestHeaders.Accept.Add(this.header);
+
                     string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
-                    if (token != null)
+                    if (!string.IsNullOrEmpty(token))
                         client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
 
-                    string json = JsonConvert.SerializeObject(model);
-                    StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await client.PostAsync(request, content);
+                    HttpResponseMessage response = await client.PostAsync(request, null);
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -660,6 +725,63 @@ namespace AppBookify.Services
             }
         }
 
+
+        //public async Task<PedidoConDetallesViewModel>
+        //    RealizarCompraAsync(int idUsuario, int cantidad, int idLibro)
+        //{
+        //    try
+        //    {
+        //        PedidoConDetallesViewModel model = new PedidoConDetallesViewModel
+        //        {
+        //            Pedido = new Pedido
+        //            {
+        //                IdPedido = 0,
+        //                Albaran = 0,
+        //                IdUsuario = idUsuario,
+        //                FechaPedido = DateTime.UtcNow,
+        //                IdEstadoPedido = 0,
+        //                PrecioTotal = 0
+        //            },
+        //            Detalle = new DetallesPedido
+        //            {
+        //                IdDetallePedido = 0,
+        //                IdPedido = 0,
+        //                IdLibro = idLibro,
+        //                Cantidad = cantidad
+        //            }
+        //        };
+
+
+        //        using (HttpClient client = new HttpClient())
+        //        {
+        //            string request = "api/Pedidos/RealizarPedidoConDetalles";
+        //            client.BaseAddress = new Uri(this.ApiUrl);
+        //            client.DefaultRequestHeaders.Clear();
+        //            client.DefaultRequestHeaders.Accept.Add(this.header);
+        //            string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
+        //            if (token != null)
+        //                client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+
+        //            string json = JsonConvert.SerializeObject(model);
+        //            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+        //            HttpResponseMessage response = await client.PostAsync(request, content);
+
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                return await response.Content.ReadAsAsync<PedidoConDetallesViewModel>();
+        //            }
+        //            else
+        //            {
+        //                return null;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Error al realizar la compra", ex);
+        //    }
+        //}
+
         #endregion
 
         #region VALORACIONES
@@ -669,6 +791,14 @@ namespace AppBookify.Services
                 "api/Valoraciones/GetValoracionesLibro/" + idlibro;
             List<ValoracionesLibro> valoraciones =
                 await this.CallApiAsync<List<ValoracionesLibro>>(request);
+            return valoraciones;
+        }
+        public async Task<List<Usuario>> FindUsersValoracionAsync(int? idlibro)
+        {
+            string request =
+                "api/Valoraciones/GetValoracionesUsers/" + idlibro;
+            List<Usuario> valoraciones =
+                await this.CallApiAsync<List<Usuario>>(request);
             return valoraciones;
         }
 
@@ -703,6 +833,23 @@ namespace AppBookify.Services
 
             }
 
+        }
+
+        public async Task EliminarValoracionAsync(int idvaloracion)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Valoraciones/EliminarValoracion/" + idvaloracion;
+                client.BaseAddress = new Uri(ApiUrl);
+                client.DefaultRequestHeaders.Clear();
+                string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
+                if (token != null)
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                    HttpResponseMessage response = await client.DeleteAsync(request);
+                }
+
+            }
         }
 
         #endregion

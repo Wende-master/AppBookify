@@ -12,19 +12,19 @@ namespace AppBookify.Controllers
     {
         private HelperPathProvider helperPathProvider;
         private ServiceBookify service;
-        private ServiceCacheRedis serviceCache;
+        //private ServiceCacheRedis serviceCache;
         private string UrlBlobPerfiles;
         private string UrlBlobLibros;
 
         public UsersController(
             ServiceBookify service,
             HelperPathProvider helperPathProvider,
-            ServiceCacheRedis serviceCache,
+            //ServiceCacheRedis serviceCache,
             IConfiguration configuration)
         {
             this.service = service;
             this.helperPathProvider = helperPathProvider;
-            this.serviceCache = serviceCache;
+            //this.serviceCache = serviceCache;
             UrlBlobPerfiles = configuration.GetValue<string>("BlobsUrls:UrlBlobPerfiles");
             UrlBlobLibros = configuration.GetValue<string>("BlobsUrls:UrlBlobLibros");
         }
@@ -78,6 +78,32 @@ namespace AppBookify.Controllers
         }
 
 
+        //MODIFICAR PASSWORD
+        [AuthorizeUser]
+        public async Task<IActionResult> ModificarPassword()
+        {
+            int idusuario = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            Usuario usuario = await this.service.FindUsuarioAsync(idusuario);
+            if (usuario != null)
+            {
+                return View();
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ModificarPassword(string oldpass, string newpass)
+        {
+            if (oldpass == null || newpass == null)
+            {
+                ViewData["ERROR"] = "Se produjo un error";
+                return View();
+            }
+            await this.service.ActualizarPasswordAsync(oldpass, newpass);
+            return RedirectToAction("Perfil", "Users");
+
+        }
+
         public async Task<IActionResult> ActivarCuenta(string? tokenmail)
         {
             if (tokenmail != null)
@@ -92,6 +118,23 @@ namespace AppBookify.Controllers
             }
         }
 
+        //RESET PASSWORD
+        public IActionResult RestablecerPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RestablecerPassword(string email, string password, string codigo)
+        {
+            if (email == null || password == null || codigo == null)
+            {
+                ViewData["ERROR"] = "Los datos introducidos no son correctos, por favor revise los datos";
+                return View();
+            }
+            await this.service.ResetPasswordAsync(email, password, codigo);
+            return RedirectToAction("Perfil", "Users");
+        }
 
         public async Task<IActionResult> PedidosUsuario()
         {
@@ -112,7 +155,7 @@ namespace AppBookify.Controllers
                     return View(vistaPedido);
                 }
 
-                ViewData["MISPEDIDOS"] = "No tienes ninguna compra realizada";
+                ViewData["MISPEDIDOS"] = usuario.Nombre + " no has realizado ninguna compra, ve y echa un vistazo a la web.";
                 return View();
             }
             return RedirectToAction("Logout", "Managed");
@@ -148,6 +191,13 @@ namespace AppBookify.Controllers
                 return View();
             }
 
+        }
+
+        [AuthorizeUser]
+        public async Task<IActionResult> Usuarios()
+        {
+            List<Usuario> usuarios = await this.service.GetUsuariosAsync();
+            return View(usuarios);
         }
 
     }

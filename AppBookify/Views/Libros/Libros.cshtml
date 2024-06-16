@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Libros";
+
 }
 
 <section class="h-50 mb-2 pb-2 fadein-libros-first">
@@ -18,7 +19,7 @@
                     <div class="col-lg-6 d-flex align-items-center imagenForm">
                         <div class="text-black px-3 py-4 p-md-5 mx-md-4">
                             <h4 class="mb-4">
-                                 <strong>
+                                <strong>
                                     BOOKIFY
                                     <button class="btn btn-outline-success" onclick="loadLibros()"> <i class="fa fa-rotate-left"> </i></button>
                                 </strong>
@@ -72,16 +73,60 @@
                         <div class="card-body m-0 p-0">
                             <div class="entry-header mb-3">
                                 <div class="card-title entry-title h4 m-0">
-                                    <p> @libro.Libros.Titulo</p>
+                                    <p>
+                                        <a class="text-black text-decoration-none" asp-controller="Valoraciones" asp-action="RegistrarValoracion"
+                                           asp-route-idlibro="@libro.Libros.IdLibro">
+                                            @libro.Libros.Titulo
+                                        </a>
+                                    </p>
                                 </div>
                                 @if (Context.User.Identity.IsAuthenticated)
                                 {
+
+                                    int idusuario = int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                                    List<int> carrito = Context.Session.GetObject<List<int>>("FAVORITOS", idusuario); //Context.Session.GetObject<List<int>>("FAVORITOS");
+
                                     <ul class="entry-meta list-unstyled d-flex mb-3">
+                                        @* <li>
+                                <a class="btn btn-outline-primary"
+                                asp-controller="Libros" asp-action="AñadirFavorito" asp-route-idlibro="@libro.Libros.IdLibro">
+                                Añadir a carrito
+                                </a>
+                                </li> *@
+
                                         <li>
-                                            <a class="btn btn-outline-primary"
-                                               asp-controller="Libros" asp-action="AñadirFavorito" asp-route-idlibro="@libro.Libros.IdLibro">
-                                                Añadir a carrito
-                                            </a>
+                                            @if (carrito != null)
+                                            {
+                                                @if (!carrito.Contains(libro.Libros.IdLibro))
+                                                {
+                                                    <a asp-controller="Libros"
+                                                       asp-action="AñadirFavorito"
+                                                       asp-route-idlibro="@libro.Libros.IdLibro"
+                                                       class="btn btn-primary w-100">
+                                                        Añadir <i class="fa fa-cart-plus"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-success w-100" disabled>
+                                                        Libro ya en la cesta <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                    @*  <a class="btn btn-danger w-50" asp-controller="Libros"
+                                    asp-route-idlibro="@libro.Libros.IdLibro"
+                                    asp-action="EliminarProducto">
+                                    Eliminar de carrito <i class="fa fa-trash-alt"></i>
+                                    </a> *@
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Libros"
+                                                   asp-action="AñadirFavorito"
+                                                   asp-route-idlibro="@libro.Libros.IdLibro"
+                                                   class="btn btn-primary w-100">
+                                                    Añadir <i class="fa fa-cart-plus"></i>
+                                                </a>
+                                            }
                                         </li>
                                     </ul>
                                 }
@@ -92,7 +137,7 @@
                                 <li>
                                     @if (libro.ValoracionesLibros != null && libro.ValoracionesLibros.Any())
                                     {
-                                        <a class="text-danger text-decoration-none" asp-controller="Valoraciones" asp-action="RegistrarValoracion"
+                                        <a class="text-decoration-none" asp-controller="Valoraciones" asp-action="RegistrarValoracion"
                                            asp-route-idlibro="@libro.Libros.IdLibro">
                                             <input class="rating" max="5" step="0.5"
                                                    style="--value: @String.Format("{0:0.00}", @libro.ValoracionesLibros.Average(m => m.ValoracionDecimal)).ToString().Replace(',','.'); cursor: pointer"

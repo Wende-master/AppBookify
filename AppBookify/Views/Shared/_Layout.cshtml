@@ -55,11 +55,14 @@
 
                     ﻿@if (Context.User.Identity.IsAuthenticated)
                     {
+                        string blob = configuration.GetValue<string>("BlobsUrls:UrlBlobPerfiles");
+                        string foto = blob + "/" + Context.User.FindFirstValue("Foto");
+
                         <ul class="navbar-nav">
                             <li class="dropdown">
                                 <button class="btn dropdown-toggle" type="button" id="dropdownPerfil" data-bs-toggle="dropdown" aria-expanded="false">
                                     <img class="rounded-pill" width="30" height="30"
-                                         src="~/perfiles/default.png">
+                                         src="@foto">
                                     @Context.User.FindFirst(ClaimTypes.Name).Value
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownPerfil">
@@ -85,6 +88,9 @@
                                            asp-action="PedidosUsuario">
                                             Mis pedidos
                                         </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a asp-controller="Users" asp-action="ModificarPassword" class="nav-link text-dark">Modificar contraseña</a>
                                     </li>
                                 </ul>
                             </li>

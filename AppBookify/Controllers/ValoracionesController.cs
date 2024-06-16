@@ -43,5 +43,16 @@ namespace AppBookify.Controllers
             return RedirectToAction("Index", "Home");
 
         }
+
+        public async Task<IActionResult> EliminarValoracion(int? idlibro, int idvaloracion)
+        {
+            if (idlibro != null)
+            {
+                Libro libro = await this.service.FindLibroAsync(idlibro.Value);
+                await this.service.EliminarValoracionAsync(idvaloracion);
+                return RedirectToAction("DetallesLibro", "Libros", new { idlibro = libro.IdLibro });
+            }
+            return RedirectToAction("Libros", "Libros");
+        }
     }
 }

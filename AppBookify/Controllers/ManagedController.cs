@@ -59,6 +59,9 @@ namespace AppBookify.Controllers
                 identity.AddClaim
                     (new Claim("Nombre", usuario.Nombre));
 
+                identity.AddClaim
+                    (new Claim("Foto", usuario?.FotoPerfil));
+
                 identity.AddClaim(new Claim("TOKEN", HttpContext.Session.GetString("TOKEN")));
 
                 ClaimsPrincipal userPrincipal =
@@ -79,6 +82,23 @@ namespace AppBookify.Controllers
                 return RedirectToAction(action, controller);
             }
 
+        }
+
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string email)
+        {
+            if (email == null)
+            {
+                ViewData["ERROR"] = "Por favor introduce un email válido";
+                return View();
+            }
+            await this.service.RecuperarTokenAsync(email);
+            return RedirectToAction("RestablecerPassword", "Users");
         }
 
         public IActionResult ErrorAcceso()

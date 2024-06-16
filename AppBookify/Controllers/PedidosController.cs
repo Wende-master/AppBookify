@@ -9,7 +9,7 @@ namespace AppBookify.Controllers
     public class PedidosController : Controller
     {
         private ServiceBookify service;
-        private ServiceCacheRedis serviceCache;
+        //private ServiceCacheRedis serviceCache;
         private string UrlBlobLibros;
 
         public PedidosController(ServiceBookify service, IConfiguration configuration)
@@ -46,18 +46,18 @@ namespace AppBookify.Controllers
         [AuthorizeUser]
         public async Task<IActionResult> ComprarProducto(int cantidad, int idlibro)
         {
-            try
-            {
-                int idUsuario = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-                await this.service.RealizarCompraAsync(idUsuario, cantidad, idlibro);
-
-                return RedirectToAction("PedidosUsuario", "Users");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, "Error al realizar la compra: " + ex.Message);
-                return RedirectToAction("Carrito", "Libros");
-            }
+            //try
+            //{
+            //    int idUsuario = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            //    await this.service.RealizarCompraAsync(idUsuario, cantidad, idlibro);
+            return View();
+            //    return RedirectToAction("PedidosUsuario", "Users");
+            //}
+            //catch (Exception ex)
+            //{
+            //    ModelState.AddModelError(string.Empty, "Error al realizar la compra: " + ex.Message);
+            //    return RedirectToAction("Carrito", "Libros");
+            //}
         }
 
     }
