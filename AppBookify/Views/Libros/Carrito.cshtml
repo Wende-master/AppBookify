@@ -126,5 +126,31 @@
         </div>
 
     </section>
+}
+
+<!-- Incluir SweetAlert -->
+@* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function () {
+        @if (TempData["MENSAJE_EXITO"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        position: 'top-end',
+                        text: '@TempData["MENSAJE_EXITO"]',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+            </text>
+        }
+                        });
+
+    </script>
 
 }

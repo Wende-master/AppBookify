@@ -2,7 +2,7 @@
 
 @if (Model != null)
 {
-    
+
 
     List<Usuario> usuarios = ViewData["USUARIOS_VALORACION"] as List<Usuario>;
     List<ValoracionesLibro> valoraciones = ViewData["VALORACIONES"] as List<ValoracionesLibro>;
@@ -21,11 +21,19 @@
                 <div class="entry-header mb-3 p-3">
                     @if (int.Parse(Context.User.FindFirst(ClaimTypes.Role).Value) == 1)
                     {
-                        <a class="btn btn-danger" asp-controller="Libros" asp-action="EliminarLibro"
-                           asp-route-idlibro="@Model.LibroId">
+                        @* <a class="btn btn-danger" asp-controller="Libros" asp-action="EliminarLibro"
+            asp-route-idlibro="@Model.LibroId">
+            <i class="fa fa-trash-alt"></i>
+            </a> *@
+
+                        <button class="btn btn-danger" onclick="confirmarEliminar(@Model.LibroId)">
                             <i class="fa fa-trash-alt"></i>
-                        </a>
+                        </button>
                     }
+
+                    <form id="formEliminarLibro" method="post" asp-action="EliminarLibro" asp-controller="Libros" style="display:none;">
+                        <input type="hidden" name="idlibro" id="idlibroEliminar" value="" />
+                    </form>
 
                     @if (carrito != null)
                     {
@@ -35,7 +43,7 @@
                                asp-action="AñadirFavorito"
                                asp-route-idlibro="@Model.LibroId"
                                class="btn btn-outline-primary">
-                               Añadir <i class="fa fa-cart-plus"></i>
+                                Añadir <i class="fa fa-cart-plus"></i>
                             </a>
                         }
                         else
@@ -162,18 +170,63 @@ else
         @ViewData["LIBRO_NULL"]
     </h2>
 }
+@* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
 
 @section Scripts
 {
     <script>
-        // $(document).ready(function () {
-        //     $.get('@Url.Action("DetallesLibro", "Libros", new { idLibro = Model?.LibroId })', function (data) {
-        //         $('#detalleLibro').html(data.response);
-        //         $('#detalleLibro').show();
-        //         $('.fa-spin').hide();
-        //     });
+        function confirmarEliminar(idlibro) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                //icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo!',
+                cancelButtonText: 'Cancelar',
+                imageUrl: 'https://appbookify.azurewebsites.net/images/logo.png',
+                imageWidth: 100,
+                imageHeight: 100,
+                imageAlt: 'logo.png',
+                customClass: {
+                    image: 'rounded-image'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
 
-        // });
+                    document.getElementById('idlibroEliminar').value = idlibro;
+                    document.getElementById('formEliminarLibro').submit();
+
+        @if (TempData["MENSAJE_EXITO"] != null)
+        {
+            <text>
+                            Swal.fire({
+                                text: '@TempData["MENSAJE_EXITO"]',
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 2500
+                            });
+            </text>
+        }
+                }
+            });
+        }
+
+        // $(document).ready(function () {
+        // if (TempData["MENSAJE_EXITO"] != null)
+        // {
+        //     <text>
+        //             Swal.fire({
+        //                 title: '¡Éxito!',
+        //                 text: 'TempData["MENSAJE_EXITO"]',
+        //                 icon: 'success',
+        //                 showConfirmButton: false,
+        //                 timer: 2500
+        //             });
+        //     </text>
+        // }
+        //                     });
     </script>
 }
 

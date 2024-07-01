@@ -149,6 +149,10 @@ namespace AppBookify.Controllers
                 HttpContext.Session.Remove($"FAVORITOS_{user.IdUser}");
                 //HttpContext.Session.Remove("FAVORITOS");
 
+                // Mostrar SweetAlert de éxito
+                TempData["MENSAJE_EXITO"] = "¡Compra realizada con éxito!";
+
+
                 return RedirectToAction("PedidosUsuario", "Users");
             }
             catch (Exception ex)
@@ -180,6 +184,9 @@ namespace AppBookify.Controllers
                     carrito.Add(idlibro.Value);
                     //HttpContext.Session.SetObject("FAVORITOS", carrito);
                     HttpContext.Session.SetObject("FAVORITOS", user.IdUser, carrito);
+
+                    Libro libro = await this.service.FindLibroAsync(idlibro.Value);
+                    TempData["MENSAJE_EXITO"] = libro.Titulo + " se añadió a tu carrito.";
 
                     return RedirectToAction("Carrito", "Libros");
                 }
@@ -213,6 +220,9 @@ namespace AppBookify.Controllers
                     HttpContext.Session.SetObject("FAVORITOS", user.IdUser, carrito);
                     //HttpContext.Session.SetObject("FAVORITOS", carrito);
                 }
+
+                Libro libro = await this.service.FindLibroAsync(idlibro.Value);
+                TempData["MENSAJE_EXITO"] = libro.Titulo + " ya no está en carrito.";
             }
             //await this.cache.DeleteProductosAsync(idlibro);
             return RedirectToAction("Carrito");
@@ -275,7 +285,7 @@ namespace AppBookify.Controllers
                     {
                         await this.service.RegistrarLibroAsync(libro, model.Autor, model.GenerosDeLibro, imagenlibro);
                     }
-
+                    TempData["MENSAJE_EXITO"] = "Se ha registrado el nuevo libro con éxito";
                     return RedirectToAction("Libros");
                 }
                 return RedirectToAction("Libros");
@@ -285,6 +295,7 @@ namespace AppBookify.Controllers
 
 
         [AuthorizeUser]
+        [HttpPost]
         public async Task<IActionResult> EliminarLibro(int idlibro)
         {
             if (HttpContext.User.Identity.IsAuthenticated)
@@ -294,6 +305,7 @@ namespace AppBookify.Controllers
                 if (idRol == 1)
                 {
                     await this.service.EliminarLibroAsync(idlibro);
+                    TempData["MENSAJE_EXITO"] = "El libro se ha eliminado con éxito";
                     return RedirectToAction("Libros", "Libros");
                 }
 

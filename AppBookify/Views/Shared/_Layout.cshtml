@@ -39,14 +39,15 @@
                             if (int.Parse(Context.User.FindFirst(ClaimTypes.Role).Value) == 1)
                             {
                                 <li class="dropdown">
-                                    <button class="btn dropdown-toggle" type="button" id="dropdownAdmin" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Administrador
-                                        <i class="fas fa-cogs"></i>
-                                    </button>
+                                    <a class="nav-link dropdown-toggle" href="#" id="dropdownAdmin" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Administrador <i class="fas fa-cogs"></i>
+                                    </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownAdmin">
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-controller="Libros" asp-action="RegistrarLibro">Registrar Libro</a>
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item" asp-controller="Libros" asp-action="RegistrarLibro">Registrar Libro</a>
+
                                         </li>
+                                        <!--  más submenús  -->
                                     </ul>
                                 </li>
                             }
@@ -55,46 +56,95 @@
 
                     ﻿@if (Context.User.Identity.IsAuthenticated)
                     {
+                        int numCesta = 0;
                         string blob = configuration.GetValue<string>("BlobsUrls:UrlBlobPerfiles");
                         string foto = blob + "/" + Context.User.FindFirstValue("Foto");
 
+                        if (Context.Session.GetObject<List<int>>("FAVORITOS", int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier).Value)) != null)
+                        {
+                            List<int> cesta = Context.Session.GetObject<List<int>>("FAVORITOS", int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier).Value));
+                            if (cesta != null)
+                            {
+                                numCesta = cesta.Count;
+                            }
+                        }
+
+                        @* <ul class="navbar-nav">
+                    <li class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" id="dropdownPerfil" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img class="rounded-pill" width="30" height="30"
+                    src="@foto">
+                    @Context.User.FindFirst(ClaimTypes.Name).Value
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownPerfil">
+                    <li class="nav-item">
+                    <a class="nav-link text-dark" asp-controller="Managed" asp-action="Logout">
+                    <i class="fa fa-arrow-right-from-bracket"></i> Cerrar Sesión
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link text-dark" asp-controller="Users" asp-action="Perfil">
+                    Perfil  <i class="fas fa-user-circle"></i>
+                    </a>
+                    </li>
+
+                    <li class="nav-item">
+                    <a class="nav-link text-dark" asp-controller="Libros" asp-action="Carrito">
+                    Carrito <i class="fa fa-cart-shopping"></i>
+                    </a>
+                    </li>
+
+                    <li class="nav-item">
+                    <a class="nav-link text-dark" asp-controller="Users"
+                    asp-action="PedidosUsuario">
+                    Mis pedidos
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a asp-controller="Users" asp-action="ModificarPassword" class="nav-link text-dark">Modificar contraseña</a>
+                    </li>
+                    </ul>
+                    </li>
+                    </ul> *@
+
                         <ul class="navbar-nav">
                             <li class="dropdown">
-                                <button class="btn dropdown-toggle" type="button" id="dropdownPerfil" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img class="rounded-pill" width="30" height="30"
-                                         src="@foto">
+                                <a class="nav-link dropdown-toggle" href="#" id="dropdownPerfil" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img class="rounded-pill" width="30" height="30" src="@foto">
                                     @Context.User.FindFirst(ClaimTypes.Name).Value
-                                </button>
+                                </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownPerfil">
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Managed" asp-action="Logout">
-                                            <i class="fa fa-arrow-right-from-bracket"></i> Cerrar Sesión
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Users" asp-action="Perfil">
-                                            Perfil  <i class="fas fa-user-circle"></i>
-                                        </a>
-                                    </li>
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item dropdown-toggle nav-link text-dark" href="#">Perfil <i class="fas fa-user-circle"></i></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" asp-controller="Users" asp-action="Perfil">Ver Perfil</a></li>
 
+                                            <li><a class="dropdown-item" asp-controller="Users" asp-action="ModificarPassword">Modificar Contraseña</a></li>
+
+                                            <li><button class="dropdown-item text-danger btn btn-outline-danger" onclick="eliminarUsuario()">Eliminar mi cuenta</button></li>
+                                        </ul>
+                                    </li>
                                     <li class="nav-item">
                                         <a class="nav-link text-dark" asp-controller="Libros" asp-action="Carrito">
                                             Carrito <i class="fa fa-cart-shopping"></i>
-                                        </a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Users"
-                                           asp-action="PedidosUsuario">
-                                            Mis pedidos
+                                            @if (numCesta > 0)
+                                            {
+                                                @numCesta
+                                            }
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a asp-controller="Users" asp-action="ModificarPassword" class="nav-link text-dark">Modificar contraseña</a>
+                                        <a class="nav-link text-dark" asp-controller="Users" asp-action="PedidosUsuario">Mis Compras</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Managed" asp-action="Logout">
+                                            <i class="fa fa-arrow-right-from-bracket"></i> Cerrar Sesión
+                                        </a>
                                     </li>
                                 </ul>
                             </li>
                         </ul>
+
                     }
 
                 </div>
@@ -119,5 +169,61 @@
     <script src="~/js/sweetalert.min.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.dropdown').hover(
+                function () {
+                    $(this).find('.dropdown-menu').stop(true, true).slideDown(200);
+                },
+                function () {
+                    $(this).find('.dropdown-menu').stop(true, true).slideUp(200);
+                }
+            );
+
+            $('.dropdown-submenu').hover(function () {
+                $(this).children('.dropdown-menu').stop(true, true).slideDown(200);
+            }, function () {
+                $(this).children('.dropdown-menu').stop(true, true).slideUp(200);
+            });
+        });
+
+        function eliminarUsuario() {
+            Swal.fire({
+                title: '¿Está seguro de que quiere eliminar la cuenta?',
+                text: "¡No podrás revertir esta acción!",
+                //icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar cuenta',
+                cancelButtonText: 'Cancelar',
+                imageUrl: 'https://appbookify.azurewebsites.net/images/logo.png',
+                imageWidth: 100,
+                imageHeight: 100,
+                imageAlt: 'logo.png',
+                customClass: {
+                    image: 'rounded-image'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("EliminarCuenta", "Users")';
+                }
+            });
+        }
+
+    </script>
+
+    <style>
+        .swal2-image {
+            margin-top: 15px;
+        }
+
+        .rounded-image {
+            border-radius: 50%;
+        }
+    </style>
 </body>
 </html>

@@ -75,6 +75,9 @@ namespace AppBookify.Controllers
                         ExpiresUtc = DateTime.UtcNow.AddMinutes(30),
                     });
 
+
+                TempData["BIENVENIDO"] = $"Bienvenido, {usuario.Nombre}";
+
                 HttpContext.Session.Remove("TOKEN");
                 string controller = TempData["controller"].ToString();
                 string action = TempData["action"].ToString();
@@ -108,7 +111,7 @@ namespace AppBookify.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Libros", "Libros");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

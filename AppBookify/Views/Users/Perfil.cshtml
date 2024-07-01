@@ -21,7 +21,7 @@
                                         <input id="password" asp-for="Password" hidden class="form-control" type="text" value="@Model.IdUser" disabled />
 
                                         <div class="col-md-4 p-0">
-                                            <img src="@Model.FotoPerfil" width="225" height="201" alt="@Model.Nombre" title="@Model.Nombre"
+                                            <img src="@Model.FotoPerfil" width="225" height="201" alt="@Model.Nombre" title="@Model.Nombre" style="cursor: pointer"
                                                  class="rounded-circle profile-pic position-relative p-1" id="magen" data-bs-toggle="popover" data-bs-content="Contenido del popover" />
                                             <input type="file" id="imagen" name="imagen" style="display:none;" />
                                         </div>
@@ -69,7 +69,7 @@
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-                                        <strong class="text-primary">Mis compras</strong> &nbsp;&nbsp; <span class="text-primary">@pedidos.Count</span>
+                                        <strong class="text-primary">Mis compras</strong> &nbsp;&nbsp; <span class="text-primary">(@pedidos.Count)</span>
                                     </button>
                                 </h2>
                                 <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
@@ -148,13 +148,26 @@
 }
 
 <!-- Incluir SweetAlert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
 
 
 @section Scripts {
     <script>
 
         $(document).ready(function () {
+
+        @if (ViewData["BIENVENIDO"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: '¡Bienvenido!',
+                        text: '@ViewData["BIENVENIDO"]',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+            </text>
+        }
 
             $.get('@Url.Action("Perfil", "Users")', function (data) {
                 $('#librosContainer').html(data.response);

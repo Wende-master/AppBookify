@@ -37,6 +37,12 @@ namespace AppBookify.Controllers
 
             if (user != null)
             {
+                if (TempData["BIENVENIDO"] != null)
+                {
+                    ViewData["BIENVENIDO"] = TempData["BIENVENIDO"];
+                }
+
+
                 user.FotoPerfil = UrlBlobPerfiles + "/" + user.FotoPerfil;
 
                 List<VistaPedidosUsuario> mislibros =
@@ -103,6 +109,16 @@ namespace AppBookify.Controllers
             return RedirectToAction("Perfil", "Users");
 
         }
+
+        //ELIMINAR CUENTA
+        [AuthorizeUser]
+        public async Task<IActionResult> EliminarCuenta()
+        {
+            await this.service.EliminarCuentaAsync();
+            return RedirectToAction("Logout", "Managed");
+        }
+
+        //FIN
 
         public async Task<IActionResult> ActivarCuenta(string? tokenmail)
         {

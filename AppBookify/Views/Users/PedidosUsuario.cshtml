@@ -7,7 +7,105 @@
 
 @if (Model != null)
 {
-    <section class="h-50 mb-2 pb-2 fadein-libros-first">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-xl-10">
+                <div class="card rounded-3 text-black" style="background-color: #d8d8d8;">
+                    <div class="row g-0" style="border-radius: .3rem">
+                        <div class="col-lg-6">
+                            <div class="card-body mx-md-4">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex align-items-center imagenForm">
+                        <div class="text-black px-3 py-4 p-md-5 mx-md-4">
+                            <h5 class="">
+                                @Context.User.FindFirst("Nombre").Value estás son tus compras
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="bsb-blog-5 py-3 py-md-5 py-xl-8 mb-9 pb-5">
+        <div class="accordion" id="accordionPanelsStayOpenExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                        <strong class="text-primary">Mis compras</strong> &nbsp;&nbsp; <span class="text-primary"> (@Model.Count)</span>
+                    </button>
+                </h2>
+                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+                    <div class="accordion-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <i class="fa fa-spinner fa-spin-pulse fa-2x"></i>
+                                </div>
+                            </div>
+
+                            <div class="row" id="librosContainer" style="display: none">
+                                @foreach (var libro in Model)
+                                {
+                                    <div class="col-12 col-md-6 col-lg-4 mb-4 fadein-libros fadein-libros-first">
+                                        <div class="card border-0 bg-transparent">
+                                            <figure class="card-img-top mb-4 overflow-hidden bsb-overlay-hover">
+                                                <a asp-controller="Libros" asp-action="DetallesLibro" asp-route-idLibro="@libro.LibroId">
+                                                    <img class="img-fluid bsb-scale bsb-hover-scale-up" loading="lazy" src="@libro.Imagen" alt="">
+                                                </a>
+                                                <figcaption>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-eye text-white bsb-hover-fadeInLeft" viewBox="0 0 16 16">
+                                                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                                                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                                                    </svg>
+                                                    <h4 class="h6 text-white bsb-hover-fadeInRight mt-2">
+                                                        Pedido de - @libro.Nombre @libro.Apellido
+                                                    </h4>
+                                                </figcaption>
+                                            </figure>
+                                            <div class="card-body m-0 p-0">
+                                                <div class="entry-header mb-3">
+                                                    <div class="card-title entry-title h4 m-0">
+                                                        <p> @libro.Titulo</p>
+                                                    </div>
+
+                                                    <ul class="entry-meta list-unstyled d-flex mb-3">
+                                                        <li>
+                                                            <span class="text-secondary">Cantidad: </span> @libro.Cantidad de @libro.Titulo
+                                                        </li>
+                                                    </ul>
+                                                    <ul class="entry-meta list-unstyled d-flex mb-3">
+                                                        <li>
+                                                            <span class="text-secondary">Precio total: </span>@libro.PrecioTotal€
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer border-0 bg-transparent p-0 m-0">
+                                                <ul class="entry-meta list-unstyled d-flex align-items-center m-0">
+                                                    <li>
+                                                        <span>
+                                                            <span class="text-secondary">Fecha de compra: </span> @libro.FechaPedido.ToString("d 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES"))
+                                                            @* <span class="text-secondary">Fecha: </span> @libro.FechaPedido.ToString("dd/MM/yyyy") *@
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    @* <section class="h-50 mb-2 pb-2 fadein-libros-first">
         <div class="container">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-xl-10">
@@ -87,7 +185,6 @@
                                     <li>
                                         <span>
                                             <span class="text-secondary">Fecha de compra: </span> @libro.FechaPedido.ToString("d 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES"))
-                                            @* <span class="text-secondary">Fecha: </span> @libro.FechaPedido.ToString("dd/MM/yyyy") *@
                                         </span>
                                     </li>
                                 </ul>
@@ -97,7 +194,7 @@
                 }
             </div>
         </div>
-    </section>
+    </section> *@
 
 }
 else
@@ -117,7 +214,7 @@ else
                             <div class="text-black px-3 py-4 p-md-5 mx-md-4">
                                 <h4 class="text-secondary">
                                     @ViewData["MISPEDIDOS"]
-                                </h4>                               
+                                </h4>
                             </div>
                         </div>
                     </div>
@@ -127,16 +224,31 @@ else
     </section>
 }
 
+@* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
 
 @section Scripts
 {
     <script>
         $(document).ready(function () {
-            $.get('@Url.Action("Libros", "Libros")', function (data) {
-                $('#librosContainer').html(data.response);
-                $('#librosContainer').show();
-                $('.fa-spinner').hide();
-            });
+
+        @if (TempData["MENSAJE_EXITO"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: '@TempData["MENSAJE_EXITO"]',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+            </text>
+        }
+
+                $.get('@Url.Action("Libros", "Libros")', function (data) {
+                    $('#librosContainer').html(data.response);
+                    $('#librosContainer').show();
+                    $('.fa-spinner').hide();
+                });
         });
     </script>
 }

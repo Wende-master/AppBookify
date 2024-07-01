@@ -293,7 +293,6 @@ namespace AppBookify.Services
                 {
                     string errorMessage = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Se produjo un error al cambiar la contraseña: {errorMessage}");
-                    //throw new Exception("Se produjo un error al cambiar la contraseña");
                 }
             }
         }
@@ -371,6 +370,40 @@ namespace AppBookify.Services
             string request = "api/Users/ActivarCuenta?tokenmail=" + tokenmail;
             Usuario usuario = await this.CallApiAsync<Usuario>(request);
             return usuario;
+        }
+
+        public async Task EliminarCuentaAsync()
+        {
+            string request = "api/users/EliminarCuenta";
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(ApiUrl);
+                client.DefaultRequestHeaders.Clear();
+                string token = httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "TOKEN").Value;
+                if (token != null)
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+
+                    int id = int.Parse(httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier.ToString()));
+
+                    Usuario usuario = await this.FindUsuarioAsync(id);
+
+                    HttpResponseMessage response = await client.DeleteAsync(request);
+
+                    if (usuario != null)
+                    {
+                        if (usuario.FotoPerfil != null)
+                        {
+                            BlobClient blob = await this.blobService.FindBlobAsync("imagesperfiles", usuario.FotoPerfil);
+
+                            if (blob != null)
+                            {
+                                await this.blobService.DeleteBlobAsync("imagesperfiles", usuario.FotoPerfil);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         #endregion

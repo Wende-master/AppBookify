@@ -5,6 +5,7 @@ using AppBookify.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Azure;
 using Azure.Identity;
+using AppCoreBookify.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +96,8 @@ BlobServiceClient blobServiceClient =
 builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 builder.Services.AddTransient<ServiceStorageBlobs>();
 
+
+builder.Services.AddTransient<ServiceMail>();
 
 builder.Services.AddTransient<ServiceBookify>();
 
